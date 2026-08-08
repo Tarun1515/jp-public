@@ -1,0 +1,9 @@
+// =============================================================================
+// GLOBAL STYLESHEET — public website
+//
+// Stays a one-liner. Global rules live in partials under src/styles/ and are
+// wired up by _theme.scss. Component rules belong in that component's .scss,
+// which should `@use 'variables' as v;` and `@use 'mixins' as m;`.
+// =============================================================================
+
+@use 'styles/theme';

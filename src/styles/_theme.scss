@@ -1,0 +1,18 @@
+// =============================================================================
+// THEME — the single entry point for global styles on the public site.
+//
+// ONLY src/styles.scss should `@use` this file. Components `@use 'variables'`
+// and `@use 'mixins'`, which emit nothing; pulling in this file would duplicate
+// the whole stylesheet into a component's scoped bundle.
+// =============================================================================
+
+// Every @use must precede other rules, so the token mixin is invoked at the
+// bottom. Custom properties resolve at computed-value time, not by source
+// order, so a :root block emitted last still applies to everything above it.
+@use 'variables';
+
+@use 'layout';
+@use 'typography';
+@use 'components';
+
+@include variables.root-variables;

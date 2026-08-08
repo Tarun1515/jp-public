@@ -1,0 +1,216 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+
+// =============================================================================
+// COMPONENTS — public website
+//
+// Buttons, cards and form controls, kept visually identical to the portal so
+// the two apps read as one product. Fewer variants than the portal's set: a
+// marketing page needs a call to action and a contact form, not a full
+// component library.
+// =============================================================================
+
+
+// -----------------------------------------------------------------------------
+// BUTTONS
+// -----------------------------------------------------------------------------
+
+.btn {
+  @include m.flex-center;
+  @include m.focus-ring;
+
+  gap: v.$space-2;
+  padding: v.$space-3 v.$space-6;
+  border: 1px solid var(--jp-border-strong);
+  border-radius: var(--jp-radius-md);
+  background: var(--jp-surface);
+  color: var(--jp-text);
+  font-weight: var(--jp-font-weight-medium);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--jp-transition-base) var(--jp-easing),
+    border-color var(--jp-transition-base) var(--jp-easing);
+
+  &:hover {
+    background: var(--jp-surface-alt);
+    text-decoration: none;
+  }
+
+  &:disabled { opacity: 0.55; cursor: not-allowed; }
+
+  @include m.reduced-motion { transition: none; }
+}
+
+.btn--primary {
+  background: var(--jp-primary);
+  border-color: var(--jp-primary);
+  color: var(--jp-text-inverse);
+
+  &:hover {
+    background: var(--jp-primary-hover);
+    border-color: var(--jp-primary-hover);
+  }
+}
+
+.btn--ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--jp-text-muted);
+
+  &:hover { background: var(--jp-surface-alt); color: var(--jp-text); }
+}
+
+.btn--lg {
+  padding: v.$space-4 v.$space-8;
+  font-size: var(--jp-font-size-lg);
+}
+
+.btn--sm {
+  padding: v.$space-2 v.$space-4;
+  font-size: var(--jp-font-size-sm);
+}
+
+
+// -----------------------------------------------------------------------------
+// CARDS
+// -----------------------------------------------------------------------------
+
+.card {
+  padding: v.$space-6;
+  background: var(--jp-surface);
+  border: 1px solid var(--jp-border);
+  border-radius: var(--jp-radius-xl);
+
+  &--interactive {
+    transition:
+      box-shadow var(--jp-transition-base) var(--jp-easing),
+      transform var(--jp-transition-base) var(--jp-easing);
+
+    &:hover {
+      box-shadow: var(--jp-shadow-lg);
+      transform: translateY(-2px);
+    }
+
+    @include m.reduced-motion {
+      transition: none;
+
+      &:hover { transform: none; }
+    }
+  }
+
+  &__title {
+    font-size: var(--jp-font-size-lg);
+    font-weight: var(--jp-font-weight-semibold);
+    margin-bottom: v.$space-2;
+  }
+
+  &__text {
+    color: var(--jp-text-muted);
+    line-height: var(--jp-line-height-relaxed);
+    margin: 0;
+  }
+}
+
+/// A public job listing card.
+.job-card {
+  @include m.flex-column(v.$space-2);
+
+  padding: v.$space-5;
+  background: var(--jp-surface);
+  border: 1px solid var(--jp-border);
+  border-radius: var(--jp-radius-lg);
+
+  &__title {
+    font-size: var(--jp-font-size-lg);
+    font-weight: var(--jp-font-weight-semibold);
+  }
+
+  &__school {
+    color: var(--jp-text-muted);
+    font-size: var(--jp-font-size-sm);
+  }
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: v.$space-2 v.$space-4;
+    font-size: var(--jp-font-size-sm);
+    color: var(--jp-text-muted);
+  }
+}
+
+
+// -----------------------------------------------------------------------------
+// BADGES
+// -----------------------------------------------------------------------------
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: v.$space-1;
+  padding: 0.15rem v.$space-3;
+  border-radius: var(--jp-radius-full);
+  background: var(--jp-surface-sunken);
+  color: var(--jp-text-muted);
+  font-size: var(--jp-font-size-sm);
+  font-weight: var(--jp-font-weight-medium);
+
+  &--primary {
+    background: var(--jp-primary-soft);
+    color: var(--jp-primary-800);
+  }
+
+  &--verified {
+    background: var(--jp-primary-soft);
+    color: var(--jp-primary-800);
+  }
+}
+
+
+// -----------------------------------------------------------------------------
+// FORMS — contact and enquiry pages
+// -----------------------------------------------------------------------------
+
+.field {
+  @include m.flex-column(v.$space-2);
+
+  margin-bottom: v.$space-4;
+}
+
+.field__label {
+  font-weight: var(--jp-font-weight-medium);
+  font-size: var(--jp-font-size-sm);
+}
+
+.field__error {
+  font-size: var(--jp-font-size-sm);
+  color: var(--jp-danger);
+}
+
+.form-control {
+  width: 100%;
+  padding: v.$space-3 v.$space-4;
+  border: 1px solid var(--jp-border-strong);
+  border-radius: var(--jp-radius-md);
+  background: var(--jp-surface);
+
+  // 16px minimum, or Safari on iOS zooms the page when the field takes focus.
+  font-size: var(--jp-font-size-base);
+
+  &::placeholder { color: var(--jp-text-subtle); }
+
+  &:focus {
+    outline: none;
+    border-color: var(--jp-primary);
+    box-shadow: 0 0 0 3px rgb(37 99 235 / 25%);
+  }
+
+  &[aria-invalid='true'] { border-color: var(--jp-danger); }
+}
+
+textarea.form-control {
+  min-height: 8rem;
+  resize: vertical;
+}

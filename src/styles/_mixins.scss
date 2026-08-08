@@ -1,0 +1,112 @@
+@use 'sass:map';
+@use 'variables' as v;
+
+// =============================================================================
+// MIXINS — public website. Emits no CSS.
+// =============================================================================
+
+@mixin up($name) {
+  $width: map.get(v.$breakpoints, $name);
+
+  @if $width == null {
+    @error "Unknown breakpoint `#{$name}`. Valid: #{map.keys(v.$breakpoints)}.";
+  }
+
+  @media (min-width: $width) {
+    @content;
+  }
+}
+
+@mixin down($name) {
+  $width: map.get(v.$breakpoints, $name);
+
+  @if $width == null {
+    @error "Unknown breakpoint `#{$name}`. Valid: #{map.keys(v.$breakpoints)}.";
+  }
+
+  @media (max-width: $width - 0.02px) {
+    @content;
+  }
+}
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between($align: center, $gap: null) {
+  display: flex;
+  align-items: $align;
+  justify-content: space-between;
+
+  @if $gap != null {
+    gap: $gap;
+  }
+}
+
+@mixin flex-column($gap: null) {
+  display: flex;
+  flex-direction: column;
+
+  @if $gap != null {
+    gap: $gap;
+  }
+}
+
+@mixin grid-auto($min-width: 18rem, $gap: v.$space-6) {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax($min-width, 1fr));
+  gap: $gap;
+}
+
+/// Vertical rhythm between marketing sections.
+@mixin section-spacing {
+  padding-block: v.$space-16;
+
+  @include up(md) {
+    padding-block: v.$space-24;
+  }
+}
+
+/// Keyboard focus ring. `:focus-visible`, so a mouse click leaves no ring but
+/// a keyboard user always gets one.
+@mixin focus-ring($offset: 2px) {
+  &:focus-visible {
+    outline: 2px solid var(--jp-primary);
+    outline-offset: $offset;
+  }
+}
+
+@mixin truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+@mixin line-clamp($lines: 3) {
+  display: -webkit-box;
+  -webkit-line-clamp: $lines;
+  line-clamp: $lines;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@mixin visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@mixin reduced-motion {
+  @media (prefers-reduced-motion: reduce) {
+    @content;
+  }
+}

@@ -1,0 +1,100 @@
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<header class="site-header">
+  <div class="container site-header__inner">
+    <a class="site-header__brand" routerLink="/">Teacher Recruitment Portal</a>
+
+    <nav class="site-header__nav" aria-label="Primary">
+      @for (link of navLinks; track link.route) {
+        <a
+          class="site-header__link"
+          [routerLink]="link.route"
+          routerLinkActive="site-header__link--active"
+        >
+          {{ link.label }}
+        </a>
+      }
+    </nav>
+
+    <div class="site-header__actions">
+      <!--
+        Absolute hrefs, not routerLink: the portal is a separate Angular
+        application behind its own path, so routing to it inside this app
+        would only produce a 404 from this router.
+      -->
+      <a class="btn btn--ghost btn--sm hide-on-mobile" href="/portal/auth/login">Sign in</a>
+      <a class="btn btn--primary btn--sm" href="/portal/auth/register/teacher">Get started</a>
+
+      <button
+        type="button"
+        class="site-header__menu-toggle"
+        [attr.aria-expanded]="menuOpen()"
+        aria-controls="mobile-nav"
+        aria-label="Toggle menu"
+        (click)="toggleMenu()"
+      >
+        ☰
+      </button>
+    </div>
+  </div>
+
+  @if (menuOpen()) {
+    <nav class="mobile-nav" id="mobile-nav" aria-label="Primary">
+      @for (link of navLinks; track link.route) {
+        <a class="mobile-nav__link" [routerLink]="link.route" (click)="closeMenu()">
+          {{ link.label }}
+        </a>
+      }
+      <a class="mobile-nav__link" href="/portal/auth/login">Sign in</a>
+    </nav>
+  }
+</header>
+
+<main id="main-content" tabindex="-1">
+  <router-outlet />
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="site-footer__grid">
+      <div>
+        <p class="site-footer__heading">For teachers</p>
+        <ul class="site-footer__links">
+          <li><a routerLink="/jobs">Browse jobs</a></li>
+          <li><a routerLink="/how-it-works">How it works</a></li>
+          <li><a href="/portal/auth/register/teacher">Create a profile</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="site-footer__heading">For schools</p>
+        <ul class="site-footer__links">
+          <li><a routerLink="/for-schools">Post a job</a></li>
+          <li><a routerLink="/for-schools">Find teachers</a></li>
+          <li><a href="/portal/auth/register/school">Register your school</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="site-footer__heading">Company</p>
+        <ul class="site-footer__links">
+          <li><a routerLink="/about">About us</a></li>
+          <li><a routerLink="/contact">Contact</a></li>
+          <li><a routerLink="/faq">FAQ</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="site-footer__heading">Legal</p>
+        <ul class="site-footer__links">
+          <li><a routerLink="/terms">Terms of use</a></li>
+          <li><a routerLink="/privacy">Privacy policy</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="site-footer__bottom">
+      &copy; {{ currentYear }} Teacher Recruitment Portal. All rights reserved.
+    </p>
+  </div>
+</footer>

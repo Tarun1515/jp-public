@@ -1,0 +1,78 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+
+// =============================================================================
+// TYPOGRAPHY — public website
+// =============================================================================
+
+body {
+  font-family: var(--jp-font-family);
+  font-size: var(--jp-font-size-base);
+  line-height: var(--jp-line-height-normal);
+  color: var(--jp-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-weight: var(--jp-font-weight-bold);
+  line-height: var(--jp-line-height-tight);
+
+  // Stops a two-word headline breaking after the first word on a phone.
+  text-wrap: balance;
+}
+
+h1 { font-size: var(--jp-font-size-3xl); }
+h2 { font-size: var(--jp-font-size-2xl); }
+h3 { font-size: var(--jp-font-size-xl); }
+h4 { font-size: var(--jp-font-size-lg); }
+
+p {
+  margin: 0 0 v.$space-4;
+  line-height: var(--jp-line-height-relaxed);
+
+  &:last-child { margin-bottom: 0; }
+}
+
+a {
+  color: var(--jp-primary);
+  text-decoration: none;
+
+  &:hover { text-decoration: underline; }
+
+  @include m.focus-ring;
+}
+
+/// Hero headline. Scales with the viewport so it fills the space on a laptop
+/// without overflowing a phone, with hard floor and ceiling.
+.headline {
+  font-size: clamp(#{v.$font-size-2xl}, 5vw, #{v.$font-size-4xl});
+  font-weight: var(--jp-font-weight-bold);
+  line-height: var(--jp-line-height-tight);
+  letter-spacing: -0.02em;
+}
+
+/// Intro paragraph under a headline.
+.lead {
+  font-size: var(--jp-font-size-lg);
+  line-height: var(--jp-line-height-relaxed);
+  color: var(--jp-text-muted);
+
+  // Around 65 characters. Longer lines make the eye lose its place on the
+  // return sweep.
+  max-width: 42rem;
+}
+
+.section-title {
+  font-size: var(--jp-font-size-2xl);
+  font-weight: var(--jp-font-weight-bold);
+  margin-bottom: v.$space-3;
+}
+
+.text-muted { color: var(--jp-text-muted); }
+
+.text-center { text-align: center; }
+
+.truncate { @include m.truncate; }
+
+.clamp-3 { @include m.line-clamp(3); }

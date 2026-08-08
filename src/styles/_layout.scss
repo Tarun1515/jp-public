@@ -1,0 +1,219 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+
+// =============================================================================
+// LAYOUT — reset, page scaffolding, header and footer
+// =============================================================================
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  // Anchor links land below the sticky header instead of underneath it.
+  scroll-padding-top: calc(var(--jp-header-height) + #{v.$space-4});
+  scroll-behavior: smooth;
+
+  @include m.reduced-motion {
+    scroll-behavior: auto;
+  }
+}
+
+body { background: var(--jp-bg); }
+
+img,
+picture,
+video,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+
+// -----------------------------------------------------------------------------
+// CONTAINER AND SECTIONS
+// -----------------------------------------------------------------------------
+
+.container {
+  width: 100%;
+  max-width: var(--jp-container-max-width);
+  margin-inline: auto;
+  padding-inline: v.$space-4;
+
+  @include m.up(md) {
+    padding-inline: v.$space-6;
+  }
+}
+
+.section {
+  @include m.section-spacing;
+
+  &--alt { background: var(--jp-surface-alt); }
+
+  &--tight { padding-block: v.$space-12; }
+}
+
+.section__header {
+  max-width: 44rem;
+  margin: 0 auto v.$space-12;
+  text-align: center;
+}
+
+
+// -----------------------------------------------------------------------------
+// HEADER
+// -----------------------------------------------------------------------------
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 300;
+  height: var(--jp-header-height);
+  background: rgb(255 255 255 / 92%);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--jp-border);
+
+  &__inner {
+    @include m.flex-between(center, v.$space-6);
+
+    height: 100%;
+  }
+
+  &__brand {
+    font-size: var(--jp-font-size-lg);
+    font-weight: var(--jp-font-weight-bold);
+    color: var(--jp-text);
+    text-decoration: none;
+  }
+
+  &__nav {
+    display: flex;
+    align-items: center;
+    gap: v.$space-6;
+
+    // Collapses to a menu below md. The toggle lives in the header component.
+    @include m.down(md) { display: none; }
+  }
+
+  &__link {
+    color: var(--jp-text-muted);
+    text-decoration: none;
+    font-weight: var(--jp-font-weight-medium);
+
+    &:hover,
+    &--active {
+      color: var(--jp-text);
+      text-decoration: none;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: v.$space-2;
+  }
+}
+
+
+// -----------------------------------------------------------------------------
+// FOOTER
+// -----------------------------------------------------------------------------
+
+.site-footer {
+  background: var(--jp-footer-bg);
+  color: var(--jp-text-inverse);
+  padding-block: v.$space-16 v.$space-8;
+
+  a {
+    color: rgb(255 255 255 / 75%);
+
+    &:hover { color: #fff; }
+  }
+
+  &__grid {
+    @include m.grid-auto(12rem, v.$space-8);
+
+    margin-bottom: v.$space-12;
+  }
+
+  &__heading {
+    font-size: var(--jp-font-size-sm);
+    font-weight: var(--jp-font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: v.$space-3;
+    color: rgb(255 255 255 / 55%);
+  }
+
+  &__links {
+    @include m.flex-column(v.$space-2);
+
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  &__bottom {
+    padding-top: v.$space-6;
+    border-top: 1px solid rgb(255 255 255 / 12%);
+    font-size: var(--jp-font-size-sm);
+    color: rgb(255 255 255 / 55%);
+    text-align: center;
+  }
+}
+
+
+// -----------------------------------------------------------------------------
+// HELPERS
+// -----------------------------------------------------------------------------
+
+.grid-2 {
+  display: grid;
+  gap: v.$space-8;
+
+  @include m.up(md) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.grid-3 {
+  display: grid;
+  gap: v.$space-6;
+
+  @include m.up(sm) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  @include m.up(lg) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+.visually-hidden { @include m.visually-hidden; }
+
+.skip-link {
+  @include m.visually-hidden;
+
+  &:focus {
+    position: fixed;
+    top: v.$space-2;
+    left: v.$space-2;
+    z-index: 1000;
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: v.$space-2 v.$space-4;
+    clip: auto;
+    background: var(--jp-surface);
+    border: 2px solid var(--jp-primary);
+    border-radius: var(--jp-radius-md);
+  }
+}

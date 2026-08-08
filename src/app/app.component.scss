@@ -1,0 +1,63 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+
+// .site-header, .site-footer, .container and .btn live in src/styles/.
+// Only the mobile menu, which is specific to this shell, belongs here.
+
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+main {
+  flex: 1;
+
+  &:focus { outline: none; }
+}
+
+.site-header__menu-toggle {
+  display: none;
+  border: 0;
+  background: none;
+  font-size: var(--jp-font-size-xl);
+  cursor: pointer;
+  padding: v.$space-1 v.$space-2;
+
+  @include m.focus-ring;
+
+  @include m.down(md) {
+    display: block;
+  }
+}
+
+.hide-on-mobile {
+  @include m.down(sm) {
+    display: none;
+  }
+}
+
+.mobile-nav {
+  @include m.flex-column(v.$space-1);
+
+  padding: v.$space-3 v.$space-4;
+  background: var(--jp-surface);
+  border-bottom: 1px solid var(--jp-border);
+
+  @include m.up(md) {
+    display: none;
+  }
+
+  &__link {
+    padding: v.$space-3;
+    border-radius: var(--jp-radius-md);
+    color: var(--jp-text);
+    text-decoration: none;
+    font-weight: var(--jp-font-weight-medium);
+
+    &:hover {
+      background: var(--jp-surface-alt);
+      text-decoration: none;
+    }
+  }
+}
