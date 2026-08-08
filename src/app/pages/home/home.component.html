@@ -1,0 +1,116 @@
+<section class="hero">
+  <div class="container hero__inner">
+    <h1 class="headline hero__title">Teaching jobs at schools we check first</h1>
+
+    <p class="lead hero__lead">
+      Staffroom India is where schools across India hire teachers, and where teachers find work
+      without chasing anyone. Every school is verified before its vacancies go live.
+    </p>
+
+    <!--
+      Two calls to action, equal weight, straight into the two apps. These
+      skip /continue deliberately — the person has already chosen a side by
+      pressing one of them.
+    -->
+    <div class="hero__actions">
+      <a class="btn btn--primary btn--lg" [href]="teacherSignUpUrl">Find teaching jobs</a>
+      <a class="btn btn--primary btn--lg" [href]="schoolSignUpUrl">Hire teachers</a>
+    </div>
+
+    <p class="hero__note">
+      Free to create an account. <a routerLink="/how-it-works">See how it works</a>.
+    </p>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="how-heading">
+  <div class="container">
+    <div class="section__header">
+      <h2 class="section-title" id="how-heading">How it works</h2>
+      <p class="text-muted">Two sides of the same process. Pick the one that describes you.</p>
+    </div>
+
+    <div class="journeys">
+      <article class="journey" aria-labelledby="home-teachers">
+        <h3 class="journey__title" id="home-teachers">If you are a teacher</h3>
+        <ol class="journey__steps">
+          @for (step of teacherSteps; track step.title) {
+            <li class="journey__step">
+              <span class="journey__step-title">{{ step.title }}</span>
+              <span class="journey__step-detail">{{ step.detail }}</span>
+            </li>
+          }
+        </ol>
+        <a class="journey__link" routerLink="/how-it-works" fragment="teachers">
+          The full teacher journey
+        </a>
+      </article>
+
+      <article class="journey" aria-labelledby="home-schools">
+        <h3 class="journey__title" id="home-schools">If you are a school</h3>
+        <ol class="journey__steps">
+          @for (step of schoolSteps; track step.title) {
+            <li class="journey__step">
+              <span class="journey__step-title">{{ step.title }}</span>
+              <span class="journey__step-detail">{{ step.detail }}</span>
+            </li>
+          }
+        </ol>
+        <a class="journey__link" routerLink="/how-it-works" fragment="schools">
+          The full school journey
+        </a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section section--alt" aria-labelledby="verified-heading">
+  <div class="container verified">
+    <h2 class="section-title" id="verified-heading">Every school is checked before it can post</h2>
+
+    <p class="verified__body">
+      Anyone can put a teaching job on the internet. Not everyone who does is a school.
+    </p>
+    <p class="verified__body">
+      Before a school's first vacancy appears here, we confirm the school exists, that the person
+      posting works there, and that it is what it claims to be. A teacher applying through
+      Staffroom is applying to a school that has been through that check.
+    </p>
+    <p class="verified__body">
+      It makes the first day slower for a school. It is also the reason a teacher can take what
+      they read here seriously.
+    </p>
+
+    <a class="journey__link" routerLink="/about">Why we built it this way</a>
+  </div>
+</section>
+
+<!--
+  ⚠️ PHASE 4 PLACEHOLDER — featured jobs.
+
+  This band is where live vacancies will be listed once JP.App.Api and the job
+  tables exist. It is deliberately NOT filled with mock job cards: fixtures
+  here would have to be built, demoed, and then built again for real.
+
+  To fill it in: replace the contents of .placeholder with the job list
+  component, keep the <section> and its heading, and delete this comment.
+-->
+<section class="section" aria-labelledby="jobs-heading">
+  <div class="container">
+    <div class="section__header">
+      <h2 class="section-title" id="jobs-heading">Open teaching jobs</h2>
+      <p class="text-muted">
+        Vacancy listings go live with the next release. Create your profile now and you can apply
+        the day they do.
+      </p>
+    </div>
+
+    <div class="placeholder">
+      <p class="placeholder__label">Job listings</p>
+      <p class="placeholder__text">
+        Search by subject, level and city will appear here.
+      </p>
+      <a class="btn btn--primary" [href]="teacherSignUpUrl">Create a teacher profile</a>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,69 @@
+<section class="page-hero">
+  <div class="container">
+    <h1 class="page-hero__title">How it works</h1>
+    <p class="page-hero__lead">
+      The same process seen from two sides. Teachers apply and track; schools post and shortlist.
+      Nothing below happens by email.
+    </p>
+  </div>
+</section>
+
+<nav class="jump" aria-label="On this page">
+  <div class="container jump__inner">
+    <a class="jump__link" routerLink="/how-it-works" fragment="teachers">For teachers</a>
+    <a class="jump__link" routerLink="/how-it-works" fragment="schools">For schools</a>
+  </div>
+</nav>
+
+<section class="section section--alt" id="teachers" aria-labelledby="teachers-heading" tabindex="-1">
+  <div class="container">
+    <h2 class="section-title" id="teachers-heading">For teachers</h2>
+    <p class="text-muted stage-intro">
+      From creating an account to hearing back. You will not need to telephone a school to ask
+      whether your application arrived.
+    </p>
+
+    <ol class="stages">
+      @for (stage of teacherStages; track stage.title) {
+        <li class="stage">
+          <h3 class="stage__title">{{ stage.title }}</h3>
+          <p class="stage__body">{{ stage.body }}</p>
+        </li>
+      }
+    </ol>
+
+    <a class="btn btn--primary" [href]="teacherSignUpUrl">Create a teacher profile</a>
+  </div>
+</section>
+
+<section class="section" id="schools" aria-labelledby="schools-heading" tabindex="-1">
+  <div class="container">
+    <h2 class="section-title" id="schools-heading">For schools</h2>
+    <p class="text-muted stage-intro">
+      From registering to making an offer. Verification happens once, before your first vacancy is
+      published.
+    </p>
+
+    <ol class="stages">
+      @for (stage of schoolStages; track stage.title) {
+        <li class="stage">
+          <h3 class="stage__title">{{ stage.title }}</h3>
+          <p class="stage__body">{{ stage.body }}</p>
+        </li>
+      }
+    </ol>
+
+    <a class="btn btn--primary" [href]="schoolSignUpUrl">Register your school</a>
+  </div>
+</section>
+
+<section class="section section--alt" aria-labelledby="next-heading">
+  <div class="container prose">
+    <h2 class="section-title" id="next-heading">Still deciding?</h2>
+    <p>
+      The <a routerLink="/faq">frequently asked questions</a> cover verification, what schools can
+      see on your profile, and what happens to an application that goes nowhere. If yours is not
+      there, <a routerLink="/contact">write to us</a>.
+    </p>
+  </div>
+</section>

@@ -8,6 +8,15 @@
 export const environment = {
   production: true,
 
+  /**
+   * ⚠️ Must match the domain the site is actually served from, and the one in
+   * `public/sitemap.xml`. A canonical pointing at a host that does not serve
+   * the page tells search engines to index nothing.
+   */
+  siteUrl: 'https://staffroom.in',
+
+  contactEmail: 'hello@staffroom.in',
+
   appUrls: {
     school: 'https://school.staffroom.in',
     teacher: 'https://teacher.staffroom.in',

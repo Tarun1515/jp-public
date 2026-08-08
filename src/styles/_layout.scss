@@ -63,7 +63,18 @@ select {
 .section {
   @include m.section-spacing;
 
-  &--alt { background: var(--jp-surface-alt); }
+  /**
+   * 🔴 White, not `--jp-surface-alt`.
+   *
+   * The page ground in this design system is chalk (`--jp-bg` is #f3f6f4), and
+   * `--jp-surface-alt` (#f8faf9) is LIGHTER than that. Using it here made an
+   * "alternate" band that barely differed from the ground and read as a
+   * lightening rather than an alternation.
+   *
+   * The Register idiom is white sheets laid on the chalk ground, so that is
+   * what alternating means here.
+   */
+  &--alt { background: var(--jp-surface); }
 
   &--tight { padding-block: v.$space-12; }
 }

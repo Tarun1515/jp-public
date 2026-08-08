@@ -25,7 +25,11 @@
         no way to know whether the visitor is a school or a teacher, and
         guessing sends half of them to the wrong login screen.
       -->
-      <a class="btn btn--ghost btn--sm hide-on-mobile" routerLink="/continue" [queryParams]="{ mode: 'login' }">
+      <a
+        class="btn btn--ghost btn--sm hide-on-mobile"
+        routerLink="/continue"
+        [queryParams]="{ mode: 'login' }"
+      >
         Sign in
       </a>
       <a class="btn btn--primary btn--sm" routerLink="/continue" [queryParams]="{ mode: 'signup' }">
@@ -37,10 +41,10 @@
         class="site-header__menu-toggle"
         [attr.aria-expanded]="menuOpen()"
         aria-controls="mobile-nav"
-        aria-label="Toggle menu"
+        [attr.aria-label]="menuOpen() ? 'Close menu' : 'Open menu'"
         (click)="toggleMenu()"
       >
-        ☰
+        {{ menuOpen() ? '✕' : '☰' }}
       </button>
     </div>
   </div>
@@ -52,7 +56,13 @@
           {{ link.label }}
         </a>
       }
-      <a class="mobile-nav__link" routerLink="/continue" [queryParams]="{ mode: 'login' }" (click)="closeMenu()">Sign in</a>
+      <a
+        class="mobile-nav__link"
+        routerLink="/continue"
+        [queryParams]="{ mode: 'login' }"
+        (click)="closeMenu()"
+        >Sign in</a
+      >
     </nav>
   }
 </header>
@@ -67,18 +77,18 @@
       <div>
         <p class="site-footer__heading">For teachers</p>
         <ul class="site-footer__links">
-          <li><a routerLink="/jobs">Browse jobs</a></li>
-          <li><a routerLink="/how-it-works">How it works</a></li>
+          <li><a routerLink="/how-it-works" fragment="teachers">How it works</a></li>
           <li><a [href]="teacherSignUpUrl">Create a profile</a></li>
+          <li><a routerLink="/faq" fragment="teachers">Teacher FAQ</a></li>
         </ul>
       </div>
 
       <div>
         <p class="site-footer__heading">For schools</p>
         <ul class="site-footer__links">
-          <li><a routerLink="/for-schools">Post a job</a></li>
-          <li><a routerLink="/for-schools">Find teachers</a></li>
+          <li><a routerLink="/how-it-works" fragment="schools">How it works</a></li>
           <li><a [href]="schoolSignUpUrl">Register your school</a></li>
+          <li><a routerLink="/faq" fragment="schools">School FAQ</a></li>
         </ul>
       </div>
 
@@ -87,7 +97,7 @@
         <ul class="site-footer__links">
           <li><a routerLink="/about">About us</a></li>
           <li><a routerLink="/contact">Contact</a></li>
-          <li><a routerLink="/faq">FAQ</a></li>
+          <li><a [href]="'mailto:' + contactEmail">{{ contactEmail }}</a></li>
         </ul>
       </div>
 

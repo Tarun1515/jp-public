@@ -76,3 +76,30 @@ a {
 .truncate { @include m.truncate; }
 
 .clamp-3 { @include m.line-clamp(3); }
+
+
+// -----------------------------------------------------------------------------
+// LINKS IN BODY COPY
+//
+// 🔴 Underlined, not colour-only.
+//
+// The link colour against surrounding body text is about 1.7:1, well under the
+// 3:1 WCAG needs for colour to be the sole distinguishing signal — so anyone
+// who does not perceive that hue sees no link at all. The underline is the
+// non-colour cue that fixes it.
+//
+// Scoped to running text: navigation, buttons and cards carry their own
+// affordances and would look wrong underlined.
+// -----------------------------------------------------------------------------
+
+p, li, dd {
+  a:not(.btn) {
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+    text-decoration-thickness: from-font;
+
+    &:hover {
+      text-decoration-thickness: 2px;
+    }
+  }
+}

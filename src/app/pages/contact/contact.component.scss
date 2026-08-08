@@ -1,0 +1,116 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+
+.contact {
+  display: grid;
+  gap: v.$space-12;
+
+  @include m.up(lg) {
+    // The form leads; the aside supports it. Not 1fr 1fr — a form and three
+    // short notes are not equal amounts of content.
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    gap: v.$space-16;
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: v.$space-5;
+    max-width: 34rem;
+
+    button {
+      align-self: flex-start;
+    }
+  }
+
+  &__aside {
+    padding: v.$space-6;
+    background: var(--jp-surface-alt);
+    border: 1px solid var(--jp-border);
+    border-radius: var(--jp-radius-lg);
+    align-self: start;
+  }
+
+  &__aside-title {
+    margin: 0 0 v.$space-4;
+    font-size: var(--jp-font-size-lg);
+  }
+
+  &__aside-item {
+    margin: 0 0 v.$space-5;
+    color: var(--jp-text-muted);
+    line-height: var(--jp-line-height-relaxed);
+    font-size: var(--jp-font-size-sm);
+
+    &:last-child { margin-bottom: 0; }
+  }
+
+  &__aside-label {
+    display: block;
+    font-family: var(--jp-font-family-mono);
+    font-size: var(--jp-font-size-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--jp-text-muted);
+    margin-block-end: v.$space-1;
+  }
+}
+
+// A fieldset needs its border and padding removed to sit in the form flow.
+.field--group {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-inline-size: 0;
+}
+
+.choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: v.$space-4;
+  margin-block-start: v.$space-2;
+}
+
+.choice {
+  display: inline-flex;
+  align-items: center;
+  gap: v.$space-2;
+  cursor: pointer;
+
+  input {
+    accent-color: var(--jp-primary);
+    inline-size: 1.05rem;
+    block-size: 1.05rem;
+
+    @include m.focus-ring;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// THE "CANNOT SEND" NOTICE
+//
+// Warning-toned, not success-toned, and it appears ABOVE the form so it is not
+// missed on a phone. It is the correct answer, not an error the user caused —
+// hence turmeric rather than the marking red.
+// -----------------------------------------------------------------------------
+
+.notice {
+  padding: v.$space-6;
+  margin-block-end: v.$space-8;
+  border-inline-start: 3px solid var(--jp-warning);
+  border-radius: var(--jp-radius-md);
+  background: var(--jp-warning-soft);
+
+  &__title {
+    margin: 0 0 v.$space-2;
+    font-weight: var(--jp-font-weight-semibold);
+    color: var(--jp-warning-text);
+  }
+
+  &__body {
+    margin: 0 0 v.$space-3;
+    font-size: var(--jp-font-size-sm);
+    line-height: var(--jp-line-height-relaxed);
+    color: var(--jp-warning-text);
+  }
+}

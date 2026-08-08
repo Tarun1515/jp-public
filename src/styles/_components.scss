@@ -199,7 +199,7 @@
   // 16px minimum, or Safari on iOS zooms the page when the field takes focus.
   font-size: var(--jp-font-size-base);
 
-  &::placeholder { color: var(--jp-text-subtle); }
+  &::placeholder { color: var(--jp-text-muted); }
 
   &:focus {
     outline: none;
@@ -213,4 +213,110 @@
 textarea.form-control {
   min-height: 8rem;
   resize: vertical;
+}
+
+
+// -----------------------------------------------------------------------------
+// PAGE HERO
+//
+// The band at the top of every inner page: h1 plus one orienting sentence.
+// Shared rather than repeated per page so the pages start at the same height
+// and the type does not drift between them.
+// -----------------------------------------------------------------------------
+
+.page-hero {
+  padding-block: v.$space-12;
+  background: var(--jp-surface-sunken);
+  border-block-end: 1px solid var(--jp-border);
+
+  @include m.up(md) {
+    padding-block: v.$space-16;
+  }
+
+  &__title {
+    font-size: var(--jp-font-size-3xl);
+    font-weight: var(--jp-font-weight-bold);
+    line-height: var(--jp-line-height-tight);
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+
+  &__lead {
+    margin: v.$space-4 0 0;
+    font-size: var(--jp-font-size-lg);
+    line-height: var(--jp-line-height-relaxed);
+    color: var(--jp-text-muted);
+    max-width: 42rem;
+  }
+}
+
+
+// -----------------------------------------------------------------------------
+// PROSE
+//
+// Long-form body copy: about, FAQ answers, and the legal pages. Caps the
+// measure and gives headings room, so a wall of text stays readable at 1440
+// without every page inventing its own spacing.
+// -----------------------------------------------------------------------------
+
+.prose {
+  max-width: 44rem;
+
+  h2 {
+    margin-block: v.$space-12 v.$space-4;
+    font-size: var(--jp-font-size-xl);
+
+    &:first-child { margin-block-start: 0; }
+  }
+
+  h3 {
+    margin-block: v.$space-8 v.$space-3;
+    font-size: var(--jp-font-size-lg);
+  }
+
+  p, li {
+    line-height: var(--jp-line-height-relaxed);
+    color: var(--jp-text);
+  }
+
+  p { margin-block: 0 v.$space-4; }
+
+  ul, ol {
+    margin-block: 0 v.$space-4;
+    padding-inline-start: v.$space-6;
+  }
+
+  li { margin-block-end: v.$space-2; }
+}
+
+
+// -----------------------------------------------------------------------------
+// DRAFT NOTICE
+//
+// Marks copy that is structurally correct but legally unreviewed. Deliberately
+// loud: this must not reach production unnoticed.
+// -----------------------------------------------------------------------------
+
+.draft-notice {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-2;
+  padding: v.$space-5 v.$space-6;
+  margin-block-end: v.$space-8;
+  border-inline-start: 3px solid var(--jp-warning);
+  border-radius: var(--jp-radius-md);
+  background: var(--jp-warning-soft);
+
+  &__title {
+    margin: 0;
+    font-weight: var(--jp-font-weight-semibold);
+    color: var(--jp-warning-text);
+  }
+
+  &__body {
+    margin: 0;
+    font-size: var(--jp-font-size-sm);
+    line-height: var(--jp-line-height-relaxed);
+    color: var(--jp-warning-text);
+  }
 }

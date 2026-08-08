@@ -1,0 +1,15 @@
+# Staffroom India — public site
+#
+# Everything here is meant to be indexed. The signed-in applications are on
+# separate origins (school./teacher./admin.) and are not reachable from this
+# host, so there is nothing to exclude here on their behalf — each of those
+# serves its own robots.txt.
+
+User-agent: *
+Allow: /
+
+# /continue is a routing step, not content. It has no unique information and
+# exists only to send someone to the right application.
+Disallow: /continue
+
+Sitemap: https://staffroom.in/sitemap.xml

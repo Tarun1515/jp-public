@@ -12,6 +12,20 @@ export const environment = {
   production: false,
 
   /**
+   * This site's own origin. Used for canonical URLs and Open Graph tags, which
+   * must be absolute — a relative canonical is ignored, and a relative og:url
+   * renders as a broken preview when a link is shared.
+   */
+  siteUrl: 'http://localhost:4500',
+
+  /**
+   * Where the contact form tells people to write until the enquiry endpoint
+   * exists (Phase 7). Configured rather than inlined in the template so it
+   * changes in one place when the real address is decided.
+   */
+  contactEmail: 'hello@staffroom.in',
+
+  /**
    * Where each audience signs in.
    *
    * 🔴 Configured, not hardcoded, for the same reason as in the apps: a

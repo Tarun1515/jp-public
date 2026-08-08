@@ -1,0 +1,186 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+
+// -----------------------------------------------------------------------------
+// HERO
+// -----------------------------------------------------------------------------
+
+.hero {
+  background: var(--jp-surface-sunken);
+  border-block-end: 1px solid var(--jp-border);
+
+  &__inner {
+    padding-block: v.$space-16;
+    text-align: center;
+
+    @include m.up(md) {
+      padding-block: v.$space-24;
+    }
+  }
+
+  &__title {
+    max-width: 20ch;
+    margin-inline: auto;
+  }
+
+  &__lead {
+    // .lead caps the measure at 42rem; centring needs the auto margins too.
+    margin: v.$space-5 auto 0;
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: v.$space-3;
+    margin-block-start: v.$space-8;
+
+    // 🔴 Both buttons carry the same treatment on purpose. The product needs
+    // teachers and schools equally, so neither side is the default and neither
+    // gets the visually stronger button.
+    @include m.up(sm) {
+      flex-direction: row;
+      justify-content: center;
+    }
+
+    .btn {
+      @include m.up(sm) {
+        min-width: 14rem;
+      }
+    }
+  }
+
+  &__note {
+    margin-block-start: v.$space-5;
+    font-size: var(--jp-font-size-sm);
+    color: var(--jp-text-muted);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// THE TWO JOURNEYS
+// -----------------------------------------------------------------------------
+
+.journeys {
+  display: grid;
+  gap: v.$space-6;
+
+  @include m.up(md) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.journey {
+  display: flex;
+  flex-direction: column;
+  padding: v.$space-8;
+  background: var(--jp-surface);
+  border: 1px solid var(--jp-border);
+  border-radius: var(--jp-radius-lg);
+
+  &__title {
+    margin-block-end: v.$space-6;
+  }
+
+  &__steps {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: v.$space-5;
+    margin: 0 0 v.$space-6;
+    padding: 0;
+    list-style: none;
+    counter-reset: step;
+  }
+
+  &__step {
+    display: flex;
+    flex-direction: column;
+    gap: v.$space-1;
+    padding-inline-start: v.$space-8;
+    position: relative;
+    counter-increment: step;
+
+    // A ruled left margin with the step number in it — the ledger idea the
+    // application screens use, at marketing scale.
+    &::before {
+      content: counter(step);
+      position: absolute;
+      inset-inline-start: 0;
+      top: 0.1em;
+      font-family: var(--jp-font-family-mono);
+      font-size: var(--jp-font-size-sm);
+      color: var(--jp-text-muted);
+    }
+  }
+
+  &__step-title {
+    font-weight: var(--jp-font-weight-semibold);
+  }
+
+  &__step-detail {
+    color: var(--jp-text-muted);
+    font-size: var(--jp-font-size-sm);
+    line-height: var(--jp-line-height-relaxed);
+  }
+
+  &__link {
+    align-self: flex-start;
+    font-weight: var(--jp-font-weight-semibold);
+    color: var(--jp-primary);
+
+    @include m.focus-ring;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// VERIFICATION — the actual differentiator, said plainly
+// -----------------------------------------------------------------------------
+
+.verified {
+  max-width: 44rem;
+
+  &__body {
+    margin-block: 0 v.$space-4;
+    font-size: var(--jp-font-size-lg);
+    line-height: var(--jp-line-height-relaxed);
+    color: var(--jp-text);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// PHASE 4 PLACEHOLDER
+//
+// Reads as "not built yet" rather than as an empty state of something that is.
+// A dashed rule is the honest signal: nothing is missing from your search,
+// the feature is not here yet.
+// -----------------------------------------------------------------------------
+
+.placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: v.$space-3;
+  padding: v.$space-16 v.$space-6;
+  text-align: center;
+  border: 1px dashed var(--jp-border-strong);
+  border-radius: var(--jp-radius-lg);
+
+  // Transparent so the dashed outline reads on whichever band it lands on —
+  // a white fill disappears the moment this moves to a white section.
+  background: transparent;
+
+  &__label {
+    margin: 0;
+    font-family: var(--jp-font-family-mono);
+    font-size: var(--jp-font-size-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--jp-text-muted);
+  }
+
+  &__text {
+    margin: 0 0 v.$space-3;
+    color: var(--jp-text-muted);
+    max-width: 32rem;
+  }
+}

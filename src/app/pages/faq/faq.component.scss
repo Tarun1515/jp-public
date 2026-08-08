@@ -1,0 +1,41 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+
+[id='teachers'],
+[id='schools'] {
+  scroll-margin-top: v.$space-4;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+// A description list rather than headings-plus-paragraphs: the question and
+// its answer are a pair, and dt/dd says so to a screen reader without needing
+// aria attributes to reconnect them.
+.qa {
+  max-width: 44rem;
+  margin: 0;
+
+  &__item {
+    padding-block: v.$space-6;
+    border-block-start: 1px solid var(--jp-border);
+
+    &:first-child {
+      border-block-start: 0;
+      padding-block-start: 0;
+    }
+  }
+
+  &__question {
+    font-size: var(--jp-font-size-lg);
+    font-weight: var(--jp-font-weight-semibold);
+    line-height: var(--jp-line-height-tight);
+  }
+
+  &__answer {
+    margin: v.$space-2 0 0;
+    color: var(--jp-text-muted);
+    line-height: var(--jp-line-height-relaxed);
+  }
+}

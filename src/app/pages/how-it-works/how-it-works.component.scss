@@ -1,0 +1,91 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+
+// A short in-page nav. The two journeys are long, and a visitor who arrived
+// from "For schools" should not have to scroll past the teacher one.
+.jump {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: var(--jp-surface);
+  border-block-end: 1px solid var(--jp-border);
+
+  &__inner {
+    display: flex;
+    gap: v.$space-6;
+    padding-block: v.$space-3;
+  }
+
+  &__link {
+    font-size: var(--jp-font-size-sm);
+    font-weight: var(--jp-font-weight-semibold);
+    color: var(--jp-text-muted);
+    text-decoration: none;
+
+    @include m.focus-ring;
+
+    &:hover {
+      color: var(--jp-primary);
+    }
+  }
+}
+
+// The target sections take focus when jumped to, so a keyboard user lands
+// inside them rather than at the top of the document.
+[id='teachers'],
+[id='schools'] {
+  scroll-margin-top: 4rem;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.stage-intro {
+  max-width: 42rem;
+  margin-block-end: v.$space-12;
+}
+
+.stages {
+  display: grid;
+  gap: v.$space-8;
+  margin: 0 0 v.$space-12;
+  padding: 0;
+  list-style: none;
+  counter-reset: stage;
+
+  @include m.up(md) {
+    grid-template-columns: 1fr 1fr;
+    column-gap: v.$space-12;
+  }
+}
+
+.stage {
+  counter-increment: stage;
+  padding-inline-start: v.$space-8;
+  border-inline-start: 2px solid var(--jp-border);
+  position: relative;
+
+  // The numeral sits in the margin rule, in the mono face — the same
+  // convention the application uses for ids and dates.
+  &::before {
+    content: counter(stage);
+    position: absolute;
+    inset-inline-start: v.$space-3;
+    top: 0;
+    font-family: var(--jp-font-family-mono);
+    font-size: var(--jp-font-size-sm);
+    color: var(--jp-text-muted);
+  }
+
+  &__title {
+    margin: 0 0 v.$space-2;
+    font-size: var(--jp-font-size-lg);
+  }
+
+  &__body {
+    margin: 0;
+    color: var(--jp-text-muted);
+    line-height: var(--jp-line-height-relaxed);
+  }
+}
