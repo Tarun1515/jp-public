@@ -16,6 +16,28 @@ main {
   &:focus { outline: none; }
 }
 
+// The wordmark, matched to the one the apps render in ui-app-shell and
+// ui-auth-shell: display face, the two halves separated by weight rather than
+// by colour. Not imported from jp-shared — that class lives in the app type
+// system, which this site deliberately does not pull in.
+.site-header__brand {
+  font-family: var(--jp-font-family-display);
+  font-size: var(--jp-font-size-lg);
+  font-weight: var(--jp-font-weight-bold);
+  letter-spacing: -0.01em;
+  color: var(--jp-text);
+  text-decoration: none;
+  white-space: nowrap;
+
+  @include m.focus-ring;
+
+  &-rest {
+    margin-inline-start: 0.28em;
+    font-weight: var(--jp-font-weight-normal);
+    opacity: 0.75;
+  }
+}
+
 .site-header__menu-toggle {
   display: none;
   border: 0;

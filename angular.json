@@ -49,7 +49,8 @@
             ],
             "stylePreprocessorOptions": {
               "includePaths": [
-                "src/styles"
+                "src/styles",
+                "../jp-shared/src/styles"
               ]
             },
             "server": "src/main.server.ts",
@@ -59,8 +60,7 @@
             },
             "security": {
               "allowedHosts": []
-            },
-            "preserveSymlinks": true
+            }
           },
           "configurations": {
             "production": {
@@ -76,7 +76,13 @@
                   "maximumError": "8kB"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.production.ts"
+                }
+              ]
             },
             "development": {
               "optimization": false,

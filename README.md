@@ -37,57 +37,72 @@ then prints what still needs doing by hand.
 
 ## Setup
 
-### 1. GitHub Packages token
-
-`@tarun1515/jp-shared` is published to GitHub Packages, so installing it needs
-a token with `read:packages`.
-
-```bash
-cp .npmrc.example .npmrc          # .npmrc is gitignored
-setx GITHUB_TOKEN "ghp_..."       # PowerShell; reopen the shell afterwards
-```
-
-The token is read from the environment, so `.npmrc` itself never contains it.
-
-> If npm reports **404** for `@tarun1515/jp-shared`, this is almost always the
-> cause. GitHub Packages answers an unauthenticated request for a private
-> package with 404 rather than 401, so "not found" usually means
-> "not authorised".
-
-### 2. Install
+### 1. Install
 
 ```bash
 npm install
 ```
 
-### 3. Shared library — pick a mode
+No registry token, no `.npmrc`, no `npm link`. There is no shared npm package
+any more — see PROJECT_MEMORY decision 2.42.
 
-**Development** (default while building anything). Points at the sibling working
-copy; changes flow straight through, no version bump and no publish:
+### 2. ⚠️ This app is NOT federated — and that is deliberate
 
-```bash
-npm run link:shared
+`jp-admin`, `jp-school` and `jp-teacher` are Module Federation hosts: they load
+their components at runtime from `jp-shared` on :4999, and will not start
+without it.
+
+**This app does not.** It is a plain Angular SSR application. `npm start` is all
+it needs — `jp-shared` does not have to be running.
+
+The reason is simply that it imports **zero** shared JavaScript. Not one
+TypeScript file in `src/` references `jp-shared`. Federating it would add the
+es-module-shims polyfill, a startup round-trip before bootstrap, and a hard
+runtime dependency on another server — in exchange for sharing nothing, while
+complicating the SSR pipeline this site's SEO depends on.
+
+> If that ever changes — if a page here genuinely needs `ui-table` or
+> `AuthService` — revisit it as a decision, not as a quick import. Read 2.42
+> first.
+
+### 3. 🔴 It still shares the design system, at build time
+
+```json
+"stylePreprocessorOptions": {
+  "includePaths": ["src/styles", "../jp-shared/src/styles"]
+}
 ```
 
-**Release** (CI, or another machine). Takes the published version:
+That is the same mechanism the three hosts use. SCSS is shared at **build**
+time for all five projects; only JavaScript is shared at runtime, and only by
+the hosts.
 
-```bash
-npm run update:shared
+So the repos must be **siblings**:
+
+```
+D:\Projects\
+├── jp-docs      ← read PROJECT_MEMORY.md first
+├── jp-shared    the design system lives here
+├── jp-admin     :4200
+├── jp-school    :4300
+├── jp-teacher   :4400
+├── jp-public    :4500   ← you are here
+└── jp-backend   both APIs + all database scripts
 ```
 
-Which mode am I in?
+> ⚠️ **CI must check out `jp-shared` beside this repo** or the build fails on
+> the first component stylesheet.
 
-```bash
-cd ../jp-docs && npm run check-versions
-```
+This app keeps a few partials of its own in `src/styles/` — `_layout.scss`,
+`_typography.scss`, `_components.scss`, `_theme.scss` — because marketing pages
+need looser layout rules than an application does. It holds **no tokens and no
+mixins**: those come from `jp-shared` so there is one palette, not two.
 
-It prints `linked` or `installed` per app, and flags anything stale.
+> That was not always true. This site sat on the old blue `#2563eb` while the
+> apps moved to the Register direction, and nothing failed to build. Do not
+> reintroduce a local `_variables.scss`.
 
-> ⚠️ This project sets **`"preserveSymlinks": true`** in `angular.json`.
-> Do not remove it. Without it a linked library resolves its own copy of
-> Angular, the app ends up with two, and every injection token fails with
-> `NG0203: The InjectionToken JP_APP_IDENTITY token injection failed`. The
-> message blames dependency injection; the cause is module resolution.
+New machine? `cd jp-docs && npm run bootstrap` clones and installs all seven.
 
 ---
 

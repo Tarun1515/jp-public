@@ -6,11 +6,7 @@
     "ng": "ng",
     "start": "node scripts/serve.mjs",
     "build": "ng build --configuration development",
-    "build:prod": "ng build",
-    "link:shared": "npm --prefix ../jp-shared run link && npm link @tarun1515/jp-shared",
-    "unlink:shared": "npm unlink @tarun1515/jp-shared && npm install",
-    "update:shared": "npm install @tarun1515/jp-shared@latest",
-    "shared-version": "node -p \"require('@tarun1515/jp-shared/package.json').version\""
+    "build:prod": "ng build"
   },
   "dependencies": {
     "@angular/common": "^22.1.0",
@@ -21,7 +17,6 @@
     "@angular/platform-server": "^22.1.0",
     "@angular/router": "^22.1.0",
     "@angular/ssr": "^22.1.3",
-    "@tarun1515/jp-shared": "^1.0.0",
     "express": "^5.1.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"

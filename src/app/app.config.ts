@@ -1,12 +1,21 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withComponentInputBinding } from '@angular/router';
+import { provideClientHydration } from '@angular/platform-browser';
 
 import { routes } from './app.routes';
-import { provideClientHydration } from '@angular/platform-browser';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes), provideClientHydration()
-  ]
+
+    /**
+     * `withComponentInputBinding` maps route and query parameters onto component
+     * inputs. `/continue` needs it: `mode` has to be resolved while the server
+     * renders, so the right heading is in the HTML that is sent rather than
+     * being corrected after hydration.
+     */
+    provideRouter(routes, withComponentInputBinding()),
+
+    provideClientHydration(),
+  ],
 };

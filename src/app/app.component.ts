@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
+import { signUpUrl } from './core/portal-links';
+
 /**
  * Public website shell: header, routed content, footer.
  *
@@ -20,6 +22,18 @@ export class AppComponent {
   protected readonly currentYear = new Date().getFullYear();
 
   protected readonly menuOpen = signal(false);
+
+  /**
+   * Footer sign-up links.
+   *
+   * These skip `/continue`: a link that already says "Register your school"
+   * has had the question answered. The chooser exists for the header, where
+   * nothing about the click says who is clicking.
+   *
+   * Built by `portal-links`, which is the only place a portal URL is composed.
+   */
+  protected readonly schoolSignUpUrl = signUpUrl('school');
+  protected readonly teacherSignUpUrl = signUpUrl('teacher');
 
   protected readonly navLinks = [
     { label: 'Find jobs', route: '/jobs' },

@@ -2,7 +2,10 @@
 
 <header class="site-header">
   <div class="container site-header__inner">
-    <a class="site-header__brand" routerLink="/">Teacher Recruitment Portal</a>
+    <a class="site-header__brand" routerLink="/">
+      <span class="site-header__brand-mark">Staffroom</span>
+      <span class="site-header__brand-rest">India</span>
+    </a>
 
     <nav class="site-header__nav" aria-label="Primary">
       @for (link of navLinks; track link.route) {
@@ -18,12 +21,16 @@
 
     <div class="site-header__actions">
       <!--
-        Absolute hrefs, not routerLink: the portal is a separate Angular
-        application behind its own path, so routing to it inside this app
-        would only produce a 404 from this router.
+        Both go to the chooser, not to an app. From the header alone there is
+        no way to know whether the visitor is a school or a teacher, and
+        guessing sends half of them to the wrong login screen.
       -->
-      <a class="btn btn--ghost btn--sm hide-on-mobile" href="/portal/auth/login">Sign in</a>
-      <a class="btn btn--primary btn--sm" href="/portal/auth/register/teacher">Get started</a>
+      <a class="btn btn--ghost btn--sm hide-on-mobile" routerLink="/continue" [queryParams]="{ mode: 'login' }">
+        Sign in
+      </a>
+      <a class="btn btn--primary btn--sm" routerLink="/continue" [queryParams]="{ mode: 'signup' }">
+        Sign up
+      </a>
 
       <button
         type="button"
@@ -45,7 +52,7 @@
           {{ link.label }}
         </a>
       }
-      <a class="mobile-nav__link" href="/portal/auth/login">Sign in</a>
+      <a class="mobile-nav__link" routerLink="/continue" [queryParams]="{ mode: 'login' }" (click)="closeMenu()">Sign in</a>
     </nav>
   }
 </header>
@@ -62,7 +69,7 @@
         <ul class="site-footer__links">
           <li><a routerLink="/jobs">Browse jobs</a></li>
           <li><a routerLink="/how-it-works">How it works</a></li>
-          <li><a href="/portal/auth/register/teacher">Create a profile</a></li>
+          <li><a [href]="teacherSignUpUrl">Create a profile</a></li>
         </ul>
       </div>
 
@@ -71,7 +78,7 @@
         <ul class="site-footer__links">
           <li><a routerLink="/for-schools">Post a job</a></li>
           <li><a routerLink="/for-schools">Find teachers</a></li>
-          <li><a href="/portal/auth/register/school">Register your school</a></li>
+          <li><a [href]="schoolSignUpUrl">Register your school</a></li>
         </ul>
       </div>
 
@@ -94,7 +101,7 @@
     </div>
 
     <p class="site-footer__bottom">
-      &copy; {{ currentYear }} Teacher Recruitment Portal. All rights reserved.
+      &copy; {{ currentYear }} Staffroom India. All rights reserved.
     </p>
   </div>
 </footer>
