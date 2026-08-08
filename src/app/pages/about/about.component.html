@@ -1,5 +1,5 @@
 <section class="page-hero">
-  <div class="container">
+  <div class="container measure">
     <h1 class="page-hero__title">About Staffroom India</h1>
     <p class="page-hero__lead">
       A hiring platform for schools and teachers, built around one rule: a school is checked before
@@ -62,9 +62,9 @@
       <a routerLink="/how-it-works">how it works</a> in full.
     </p>
 
-    <p>
+    <div class="actions">
       <a class="btn btn--primary" [href]="teacherSignUpUrl">Create a teacher profile</a>
-      <a class="btn btn--ghost" [href]="schoolSignUpUrl">Register your school</a>
-    </p>
+      <a class="btn" [href]="schoolSignUpUrl">Register your school</a>
+    </div>
   </div>
 </section>

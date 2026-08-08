@@ -14,7 +14,7 @@
 // its answer are a pair, and dt/dd says so to a screen reader without needing
 // aria attributes to reconnect them.
 .qa {
-  max-width: 44rem;
+  // Width comes from `.container.measure` on the section. See _layout.scss.
   margin: 0;
 
   &__item {

@@ -60,6 +60,36 @@ select {
   }
 }
 
+// -----------------------------------------------------------------------------
+// MEASURE
+//
+// 🔴 One convention for the whole site: every section's content sits in a
+// CENTRED column with a controlled measure. Combine with `.container`:
+//
+//     <div class="container measure">        long-form text
+//     <div class="container measure--wide">  cards and grids
+//
+// These must come after `.container` in this file — both are single-class
+// selectors, so source order is what lets the narrower max-width win.
+//
+// The site previously had it both ways. `about` and `terms` put the text
+// column ON the container (`class="container prose"`) so it centred, while
+// `faq` and `how-it-works` nested it INSIDE a full-width container so it sat
+// hard left with half the viewport empty beside it. Same page, two answers.
+// -----------------------------------------------------------------------------
+
+.measure {
+  max-width: 44rem;
+  margin-inline: auto;
+}
+
+/// For two-column card and step grids, which need more room than running text
+/// but should still not stretch to 88rem on a large display.
+.measure--wide {
+  max-width: 64rem;
+  margin-inline: auto;
+}
+
 .section {
   @include m.section-spacing;
 
