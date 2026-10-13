@@ -15,6 +15,18 @@ export const environment = {
    */
   siteUrl: 'https://staffroom.in',
 
+  /**
+   * The App API. See the long note in environment.ts.
+   *
+   * 🔴 THIS IS THE BROWSER'S URL, AND SSR USES IT TOO — which works only while
+   * the Node process can reach the public hostname. If it is deployed where it
+   * cannot (a private network, or split DNS), server rendering fails on every
+   * data page while the browser is fine, and the symptom is pages that render
+   * empty for crawlers and correctly for people. That is the deployment
+   * decision this file is waiting on; it is stated here rather than guessed.
+   */
+  apiUrl: 'https://api.staffroom.in/api',
+
   contactEmail: 'hello@staffroom.in',
 
   appUrls: {

@@ -1,0 +1,210 @@
+@if (loading()) {
+  <section class="section">
+    <div class="container measure">
+      <p class="job-state" aria-live="polite">Loading the job…</p>
+    </div>
+  </section>
+} @else if (missing()) {
+  <!--
+    🔴 ONE MESSAGE FOR EVERY REASON A JOB IS NOT PUBLIC — draft, expired,
+    closed, withdrawn, or pulled by moderation. The server does not say which
+    and nor does this page: on a page anyone can load, "this job has expired"
+    confirms that the id is real, which is an enumeration oracle.
+
+    It also does not imply the visitor did anything wrong. The commonest reason
+    they are here is a link that was live last week.
+  -->
+  <section class="page-hero">
+    <div class="container measure">
+      <h1 class="page-hero__title">That job is no longer listed</h1>
+      <p class="page-hero__lead">
+        It may have been filled, or the closing date may have passed. There are other vacancies —
+        and new ones appear as soon as a verified school publishes them.
+      </p>
+      <div class="actions">
+        <a class="btn btn--primary" routerLink="/jobs">See all teaching jobs</a>
+      </div>
+    </div>
+  </section>
+} @else if (failed()) {
+  <section class="page-hero">
+    <div class="container measure">
+      <h1 class="page-hero__title">We could not load this job</h1>
+      <p class="page-hero__lead">
+        Something went wrong on our side, not with the link. Please try again in a moment.
+      </p>
+      <div class="actions">
+        <a class="btn btn--ghost" routerLink="/jobs">Browse all jobs</a>
+      </div>
+    </div>
+  </section>
+} @else if (job(); as j) {
+  <article>
+    <section class="page-hero">
+      <div class="container">
+        <p class="job-detail__breadcrumb">
+          <a routerLink="/jobs">Teaching jobs</a>
+        </p>
+
+        <h1 class="page-hero__title">{{ j.jobTitle }}</h1>
+
+        <p class="job-detail__school">
+          {{ j.schoolName }}
+          @if (j.isSchoolVerified) {
+            <span
+              class="badge badge--verified"
+              title="We confirmed this school exists and that the person posting is connected to it. It is not an endorsement of the school as an employer."
+            >
+              Verified
+            </span>
+          }
+        </p>
+
+        @if (where(j)) {
+          <p class="job-detail__where">{{ where(j) }}</p>
+        }
+
+        <div class="actions">
+          <!--
+            Apply goes straight to teacher signup (2.43, confirmed by 7A-0.0):
+            somebody pressing Apply on a teaching job has already said who they
+            are, so the audience chooser would ask a question they answered.
+
+            ⚠️ An absolute URL into another application, so routerLink is wrong
+            here — it is a different origin, not a route.
+          -->
+          <a class="btn btn--primary btn--lg" [href]="applyUrl" rel="noopener">
+            Apply for this job
+          </a>
+        </div>
+
+        @if (j.lastDateToApply) {
+          <!--
+            "Apply by" — the last date IS a day you can still apply on, which
+            fn_EffectiveJobStatusId enforces and the suite asserts at the IST
+            boundary where a UTC comparison would get it wrong by 5.5 hours.
+          -->
+          <p class="job-detail__deadline">
+            Apply by {{ j.lastDateToApply | date: 'd MMMM y' }}
+          </p>
+        }
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="grid-2">
+          <div>
+            <h2 class="section-title">The role</h2>
+
+            <dl class="job-detail__facts">
+              @if (j.subjectName) {
+                <div><dt>Subject</dt><dd>{{ j.subjectName }}</dd></div>
+              }
+              @if (j.designationName) {
+                <div><dt>Role</dt><dd>{{ j.designationName }}</dd></div>
+              }
+              @if (classLevels(j)) {
+                <div><dt>Class levels</dt><dd>{{ classLevels(j) }}</dd></div>
+              }
+              @if (j.employmentTypeName) {
+                <div><dt>Employment</dt><dd>{{ j.employmentTypeName }}</dd></div>
+              }
+              @if (j.qualificationName) {
+                <div><dt>Qualification</dt><dd>{{ j.qualificationName }}</dd></div>
+              }
+              @if (experience(j)) {
+                <div><dt>Experience</dt><dd>{{ experience(j) }}</dd></div>
+              }
+              @if (salary(j)) {
+                <div><dt>Salary</dt><dd>{{ salary(j) }}</dd></div>
+              }
+              @if (j.noOfVacancies && j.noOfVacancies > 1) {
+                <div><dt>Vacancies</dt><dd>{{ j.noOfVacancies }}</dd></div>
+              }
+              @if (j.expectedJoiningDate) {
+                <div>
+                  <dt>Expected joining</dt>
+                  <dd>{{ j.expectedJoiningDate | date: 'd MMMM y' }}</dd>
+                </div>
+              }
+              @if (j.branchName) {
+                <div><dt>Branch</dt><dd>{{ j.branchName }}</dd></div>
+              }
+            </dl>
+
+            @if (j.jobDescription) {
+              <h3 class="job-detail__subhead">About this vacancy</h3>
+              <!--
+                ⚠️ Interpolated as TEXT, never innerHTML. This is a school's
+                free-text field arriving on an anonymous page; rendering it as
+                markup would make every job advert a stored-XSS vector against
+                every visitor. `white-space: pre-line` in the stylesheet keeps
+                the paragraphs they typed.
+              -->
+              <p class="job-detail__description">{{ j.jobDescription }}</p>
+            }
+          </div>
+
+          <aside>
+            <h2 class="section-title">About the school</h2>
+
+            <div class="card">
+              <p class="job-detail__school-name">{{ j.schoolName }}</p>
+
+              <dl class="job-detail__facts">
+                @if (j.schoolTypeName) {
+                  <div><dt>Type</dt><dd>{{ j.schoolTypeName }}</dd></div>
+                }
+                @if (j.boardName) {
+                  <div><dt>Board</dt><dd>{{ j.boardName }}</dd></div>
+                }
+                @if (j.establishedYear) {
+                  <div><dt>Established</dt><dd>{{ j.establishedYear }}</dd></div>
+                }
+              </dl>
+
+              @if (j.aboutSchool) {
+                <p class="job-detail__description">{{ j.aboutSchool }}</p>
+              }
+
+              @if (j.website) {
+                <!--
+                  The SCHOOL'S own website — the one piece of outward contact
+                  the public surface carries, and it is theirs to publish.
+
+                  ⚠️ rel="nofollow noopener" — nofollow because we have not
+                  vetted where it points and will not pass ranking to it;
+                  noopener because a target we do not control must not get a
+                  handle on this window.
+                -->
+                <p class="job-detail__website">
+                  <a [href]="j.website" target="_blank" rel="nofollow noopener">
+                    Visit the school's website
+                  </a>
+                </p>
+              }
+            </div>
+
+            <p class="job-detail__verified-note">
+              @if (j.isSchoolVerified) {
+                Before this school could publish a vacancy we confirmed that it exists and that
+                the person posting is connected to it. That is not an inspection, and it is not an
+                endorsement of the school as an employer.
+              } @else {
+                This school has not completed verification.
+              }
+            </p>
+          </aside>
+        </div>
+
+        <div class="actions job-detail__footer-actions">
+          <a class="btn btn--primary btn--lg" [href]="applyUrl" rel="noopener">
+            Apply for this job
+          </a>
+          <a class="btn btn--ghost" routerLink="/jobs">Browse other jobs</a>
+        </div>
+      </div>
+    </section>
+  </article>
+}

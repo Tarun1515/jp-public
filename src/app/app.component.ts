@@ -9,10 +9,16 @@ import { environment } from '../environments/environment';
 /**
  * Public website shell: header, routed content, footer.
  *
- * ⚠️ Every link in here resolves to a page that exists. There is deliberately
- * no "Find jobs" or "Browse jobs" entry — job search is Phase 4 and needs data
- * that does not exist yet. A nav item leading to a 404 makes a finished build
- * look broken, which is worse than the item being absent.
+ * ⚠️ Every link in here resolves to a page that exists, and that rule is why
+ * "Find jobs" was ABSENT until Phase 7A: the note here used to read "job search
+ * is Phase 4 and needs data that does not exist yet… a nav item leading to a
+ * 404 makes a finished build look broken". /jobs now exists and serves real
+ * vacancies, so the link is back — restored by the same rule that removed it,
+ * not in spite of it.
+ *
+ * 🔴 IT IS FIRST IN THE LIST, and that is the point of the page. Someone
+ * arriving at a teaching-jobs site is looking for teaching jobs; "How it works"
+ * led the nav only while there was nothing to look at.
  */
 @Component({
   selector: 'app-root',
@@ -42,6 +48,7 @@ export class AppComponent {
   protected readonly contactEmail = environment.contactEmail;
 
   protected readonly navLinks = [
+    { label: 'Find jobs', route: '/jobs' },
     { label: 'How it works', route: '/how-it-works' },
     { label: 'About', route: '/about' },
     { label: 'FAQ', route: '/faq' },

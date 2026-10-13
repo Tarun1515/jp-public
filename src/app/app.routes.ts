@@ -11,9 +11,14 @@ import { PageSeo } from './core/seo.service';
  * 🔴 A new route without an `seo` entry logs a warning and keeps the previous
  * page's metadata. Add it in the same commit as the route.
  *
- * ⚠️ Job search, job detail, featured jobs and featured schools are NOT here.
- * They need data that does not exist until Phase 4, and building them against
- * mock data means building them twice.
+ * ⚠️ Phase 7A ADDED /jobs and /jobs/:slug. The note that used to stand here
+ * said they were absent because the data did not exist until Phase 4 and
+ * "building them against mock data means building them twice" — which was true
+ * when it was written and is why they waited for real jobs rather than
+ * arriving as a mockup.
+ *
+ * ⚠️ Featured jobs and featured schools are STILL not here: `t_app_featured_jobs`
+ * and its sibling are Phase 7B, and the same argument applies to them today.
  */
 const seo = (title: string, description: string): { seo: PageSeo } => ({
   seo: { title, description },
@@ -80,10 +85,54 @@ export const routes: Routes = [
   },
 
   /**
+   * The public job listing. Phase 7A.
+   *
+   * ⚠️ `RenderMode.Server` — see app.routes.server.ts. Prerendering this would
+   * bake one page of results into a file at build time and serve it to every
+   * search.
+   *
+   * ⚠️ The `seo` here describes the LISTING, and it is what a filtered search
+   * is indexed as too: /jobs?subjectId=3 is not given its own title, because
+   * the canonical drops query parameters (SeoService.absoluteUrl) so that a
+   * filter does not split one page into hundreds of competing URLs.
+   */
+  {
+    path: 'jobs',
+    data: seo(
+      'Teaching jobs in India',
+      'Current teaching vacancies at verified schools — search by subject, state and class level. Free for teachers to search and apply.',
+    ),
+    loadComponent: () =>
+      import('./pages/jobs/job-list.component').then((m) => m.JobListComponent),
+  },
+
+  /**
+   * One job. Phase 7A.
+   *
+   * 🔴 The `seo` below is the LOADING and FAILURE title only. The real one is
+   * the job's own, set from the response by SeoService.setFromData — route data
+   * is static, so leaving it at this would index every vacancy in the country
+   * as one page called "Teaching job".
+   *
+   * ⚠️ `:slug` is "words-then-uid". The uid resolves; the words are decoration,
+   * so renaming a vacancy does not break a link already shared or indexed. See
+   * the slug notes in public-api.service.ts.
+   */
+  {
+    path: 'jobs/:slug',
+    data: seo(
+      'Teaching job',
+      'A teaching vacancy at a verified school on Staffroom India.',
+    ),
+    loadComponent: () =>
+      import('./pages/jobs/job-detail.component').then((m) => m.JobDetailComponent),
+  },
+
+  /**
    * The audience chooser. `?mode=login` or `?mode=signup`.
    *
-   * The only route here that is server-rendered rather than prerendered — see
-   * app.routes.server.ts.
+   * ⚠️ It WAS the only server-rendered route; 7A added /jobs, /jobs/:slug and
+   * /faq, so it is now one of four — see app.routes.server.ts.
    */
   {
     path: 'continue',

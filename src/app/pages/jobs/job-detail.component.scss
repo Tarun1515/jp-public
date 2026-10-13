@@ -1,0 +1,113 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+
+// =============================================================================
+// One public job — Phase 7A.
+// =============================================================================
+
+.job-state {
+  margin: 0;
+  padding: v.$space-6;
+  border-radius: var(--jp-radius-lg);
+  background: var(--jp-surface-sunken);
+  color: var(--jp-text-muted);
+  text-align: center;
+}
+
+.job-detail {
+  &__breadcrumb {
+    margin: 0 0 v.$space-2;
+    font-size: var(--jp-font-size-sm);
+  }
+
+  &__school {
+    display: flex;
+    align-items: center;
+    gap: v.$space-3;
+    margin: v.$space-2 0 0;
+    font-size: var(--jp-font-size-md);
+    font-weight: var(--jp-font-weight-medium);
+  }
+
+  &__where,
+  &__deadline {
+    margin: v.$space-1 0 0;
+    color: var(--jp-text-muted);
+    font-size: var(--jp-font-size-sm);
+  }
+
+  &__deadline {
+    margin-top: v.$space-3;
+  }
+
+  &__subhead {
+    margin: v.$space-6 0 v.$space-2;
+    font-size: var(--jp-font-size-md);
+    font-weight: var(--jp-font-weight-semibold);
+  }
+
+  // ---------------------------------------------------------------------------
+  // 🔴 pre-line, and it is load-bearing.
+  //
+  // The description is a school's free-text field rendered as TEXT (never
+  // innerHTML — an anonymous page must not execute a school's markup). Without
+  // this, every newline they typed collapses and a carefully laid-out advert
+  // becomes one block of prose.
+  // ---------------------------------------------------------------------------
+  &__description {
+    white-space: pre-line;
+
+    // Long unbroken strings — a pasted URL — must not widen the page on a phone.
+    overflow-wrap: break-word;
+  }
+
+  &__facts {
+    @include m.flex-column(v.$space-3);
+
+    margin: 0;
+
+    > div {
+      display: grid;
+      grid-template-columns: 9rem 1fr;
+      gap: v.$space-3;
+
+      @include m.down(sm) {
+        // Labels above values once there is no room for a column of them.
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+    }
+
+    dt {
+      color: var(--jp-text-muted);
+      font-size: var(--jp-font-size-sm);
+    }
+
+    dd {
+      margin: 0;
+      font-weight: var(--jp-font-weight-medium);
+    }
+  }
+
+  &__school-name {
+    margin: 0 0 v.$space-3;
+    font-weight: var(--jp-font-weight-semibold);
+  }
+
+  &__website {
+    margin: v.$space-3 0 0;
+    font-size: var(--jp-font-size-sm);
+  }
+
+  &__verified-note {
+    margin: v.$space-3 0 0;
+    color: var(--jp-text-muted);
+    font-size: var(--jp-font-size-sm);
+  }
+
+  &__footer-actions {
+    margin-top: v.$space-8;
+    padding-top: v.$space-6;
+    border-top: 1px solid var(--jp-border);
+  }
+}

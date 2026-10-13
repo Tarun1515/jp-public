@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Static, and hand-maintained on purpose: there are seven URLs and they change
+  Static, and hand-maintained on purpose: there are eight URLs and they change
   about once a phase. Generating it would be more machinery than the problem
   needs.
 
@@ -11,13 +11,40 @@
   /continue is deliberately absent — it is a routing step with no content of
   its own, and robots.txt disallows it.
 
-  Job search and job detail pages arrive in Phase 4 and will need adding.
+  ===========================================================================
+  🔴 /jobs IS LISTED. INDIVIDUAL JOBS ARE NOT, AND THAT IS A DECISION.
+  ===========================================================================
+  Phase 7A added /jobs and /jobs/:slug. The listing is here; the vacancies are
+  deliberately absent, for three reasons:
+
+    1. CHURN. A vacancy lives for weeks. A sitemap that names each one is
+       stale the day after it is generated, and a sitemap full of URLs that
+       404 is worse for crawling than one that omits them — it teaches the
+       crawler that this file cannot be trusted.
+    2. IT WOULD HAVE TO BE GENERATED. Listing jobs means a build step that
+       queries the database, which is real machinery for a file whose whole
+       justification above is that it needs none.
+    3. THE LISTING IS THE PATH IN. /jobs is server-rendered with real cards
+       and real links, so a crawler reaching it finds every live vacancy by
+       following them. That is how it is meant to work.
+
+  ⚠️ So "individual jobs: NO for MVP". When volume justifies it the answer is
+  a GENERATED sitemap index (/sitemap-jobs.xml, regenerated on a schedule and
+  pruned of closed jobs) — not more hand-written entries here.
+
+  ⚠️ /jobs itself gets `daily`, which the other pages do not. It is the only
+  page on this site whose content changes without a deploy.
 -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://staffroom.in/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://staffroom.in/jobs</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
   </url>
   <url>
     <loc>https://staffroom.in/how-it-works</loc>

@@ -21,6 +21,32 @@ export interface PageSeo {
 
 const SITE_NAME = 'Staffroom India';
 
+const TITLE_SUFFIX = ` — ${SITE_NAME}`;
+
+/**
+ * The longest title worth setting, in characters.
+ *
+ * 🔴 65 BECAUSE scripts/verify/site-audit.mjs FAILS ABOVE IT, and that number
+ * is itself the practical limit at which a search result truncates the title.
+ * Both halves matter: a longer title is not an error, it is a title the reader
+ * never finishes.
+ *
+ * ⚠️ Static page titles are written by hand and are comfortably inside this.
+ * It exists for titles built from DATA — a job's own title plus its school's
+ * name, neither of which has a length this project controls.
+ */
+export const TITLE_MAX_LENGTH = 65;
+
+/**
+ * How many characters a caller may spend before this service appends its
+ * suffix.
+ *
+ * 🔴 EXPORTED SO A CALLER DOES NOT GUESS IT. The suffix is defined here; a
+ * component computing "65 minus about eighteen" would be one edit of
+ * SITE_NAME away from being silently wrong.
+ */
+export const titleBudget = (): number => TITLE_MAX_LENGTH - TITLE_SUFFIX.length;
+
 /**
  * Applies title, description, Open Graph, Twitter card and canonical tags on
  * every navigation.
@@ -51,6 +77,62 @@ export class SeoService {
       .subscribe((seo) => this.apply(seo));
   }
 
+  /**
+   * Set metadata from DATA rather than from route config. Phase 7A.
+   *
+   * 🔴 WHY A DATA PAGE CANNOT USE ROUTE `data`.
+   *
+   * A job detail page's title IS the job's title, which is not known until the
+   * request returns. Route `data` is static, so /jobs/:slug would otherwise be
+   * indexed as one generic "Job" page however many jobs exist — the single
+   * worst SEO outcome available on a job board.
+   *
+   * ⚠️ CALL IT FROM THE SUBSCRIBE, NOT AFTER IT. Angular's SSR waits for
+   * outstanding HttpClient requests before serialising the document, so a tag
+   * set when the response arrives IS in the served HTML. One set in a
+   * setTimeout, or after an await that is not tracked, is not — and the symptom
+   * is a page that looks right in a browser and is blank to a crawler. 7A's
+   * verification curls the SSR output and greps the title for exactly this.
+   *
+   * ⚠️ The `seo` route data for such a route still exists and is still used —
+   * it is what the page is called while the data is loading, and what it falls
+   * back to if the request fails.
+   */
+  setFromData(seo: PageSeo): void {
+    this.apply(seo);
+  }
+
+  /**
+   * Keep this page out of search results.
+   *
+   * 🔴 For the "job not found" state. The server answers 404 for a job that is
+   * expired, closed, draft, deleted or pulled, but Angular's server renderer
+   * returns HTTP 200 for the page it renders — so to a crawler this is a SOFT
+   * 404: a real page with "not found" content, which search engines penalise
+   * and may index.
+   *
+   * ⚠️ `noindex` is the mitigation, not the fix. The fix is a real 404 status,
+   * which needs the renderer to be told — recorded honestly rather than left
+   * looking solved. What this does guarantee is that an expired job does not
+   * sit in an index inviting clicks to a dead page.
+   */
+  setNoIndex(): void {
+    this.meta.updateTag({ name: 'robots', content: 'noindex, follow' }, "name='robots'");
+  }
+
+  /**
+   * Remove a `noindex` left by a previous navigation.
+   *
+   * ⚠️ Needed because this is a single-page app: the tag is in one shared
+   * document, so a visitor who lands on a missing job and then navigates to a
+   * live one would carry the noindex with them. The crawler that matters fetches
+   * each URL fresh — but the hydrated app is also what a headless renderer
+   * sees, and a Lighthouse SEO audit run after that navigation would score it.
+   */
+  private clearNoIndex(): void {
+    this.meta.removeTag("name='robots'");
+  }
+
   private deepestRoute(): ActivatedRoute {
     let route = this.route;
     while (route.firstChild) {
@@ -68,7 +150,13 @@ export class SeoService {
       return;
     }
 
-    const fullTitle = `${seo.title} — ${SITE_NAME}`;
+    /*
+      Every page that declares its own metadata is indexable; only the
+      not-found states opt out, and they do it AFTER this runs.
+    */
+    this.clearNoIndex();
+
+    const fullTitle = `${seo.title}${TITLE_SUFFIX}`;
     const url = this.absoluteUrl();
 
     this.title.setTitle(fullTitle);

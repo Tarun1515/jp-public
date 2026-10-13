@@ -8,32 +8,79 @@
   </div>
 </section>
 
-<section class="section section--alt" id="teachers" aria-labelledby="faq-teachers" tabindex="-1">
-  <div class="container measure">
-    <h2 class="section-title" id="faq-teachers">For teachers</h2>
+@if (loading()) {
+  <section class="section">
+    <div class="container measure">
+      <p class="faq-state" aria-live="polite">Loading the questions…</p>
+    </div>
+  </section>
+} @else if (failed()) {
+  <!--
+    The honest failure. It names what went wrong and gives the alternative,
+    rather than rendering an empty page that reads as "we have no answers".
+  -->
+  <section class="section">
+    <div class="container measure">
+      <p class="faq-state faq-state--failed" role="alert">
+        We could not load the questions just now. Please try again in a moment — or
+        <a routerLink="/contact">write to us</a> and ask directly.
+      </p>
+    </div>
+  </section>
+} @else {
+  @if (teacherQuestions().length) {
+    <section class="section section--alt" id="teachers" aria-labelledby="faq-teachers" tabindex="-1">
+      <div class="container measure">
+        <h2 class="section-title" id="faq-teachers">For teachers</h2>
 
-    <dl class="qa">
-      @for (item of teacherQuestions; track item.q) {
-        <div class="qa__item">
-          <dt class="qa__question">{{ item.q }}</dt>
-          <dd class="qa__answer">{{ item.a }}</dd>
-        </div>
-      }
-    </dl>
-  </div>
-</section>
+        <dl class="qa">
+          @for (item of teacherQuestions(); track item.faqId) {
+            <div class="qa__item">
+              <dt class="qa__question">{{ item.question }}</dt>
+              <dd class="qa__answer">{{ item.answer }}</dd>
+            </div>
+          }
+        </dl>
+      </div>
+    </section>
+  }
 
-<section class="section" id="schools" aria-labelledby="faq-schools" tabindex="-1">
-  <div class="container measure">
-    <h2 class="section-title" id="faq-schools">For schools</h2>
+  @if (schoolQuestions().length) {
+    <section class="section" id="schools" aria-labelledby="faq-schools" tabindex="-1">
+      <div class="container measure">
+        <h2 class="section-title" id="faq-schools">For schools</h2>
 
-    <dl class="qa">
-      @for (item of schoolQuestions; track item.q) {
-        <div class="qa__item">
-          <dt class="qa__question">{{ item.q }}</dt>
-          <dd class="qa__answer">{{ item.a }}</dd>
-        </div>
-      }
-    </dl>
-  </div>
-</section>
+        <dl class="qa">
+          @for (item of schoolQuestions(); track item.faqId) {
+            <div class="qa__item">
+              <dt class="qa__question">{{ item.question }}</dt>
+              <dd class="qa__answer">{{ item.answer }}</dd>
+            </div>
+          }
+        </dl>
+      </div>
+    </section>
+  }
+
+  <!--
+    Only when an admin has added one. Nothing seeds GENERAL, but the table
+    allows it — and a question written into a category the page ignores would
+    be work that silently disappears.
+  -->
+  @if (generalQuestions().length) {
+    <section class="section section--alt" aria-labelledby="faq-general">
+      <div class="container measure">
+        <h2 class="section-title" id="faq-general">Everything else</h2>
+
+        <dl class="qa">
+          @for (item of generalQuestions(); track item.faqId) {
+            <div class="qa__item">
+              <dt class="qa__question">{{ item.question }}</dt>
+              <dd class="qa__answer">{{ item.answer }}</dd>
+            </div>
+          }
+        </dl>
+      </div>
+    </section>
+  }
+}

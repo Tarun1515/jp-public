@@ -1,0 +1,245 @@
+<section class="page-hero">
+  <div class="container">
+    <h1 class="page-hero__title">Teaching jobs</h1>
+    <p class="page-hero__lead">
+      Every vacancy here is from a school we verified before its job went live. Searching and
+      applying are free for teachers.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <!--
+      A real <form> with a submit, not a keystroke listener. Pressing Enter in
+      the box searches, which is what the keyboard expects — and the mobile
+      keyboard shows a "search" key for the same reason.
+    -->
+    <form class="job-filters" (ngSubmit)="runSearch()" role="search">
+      <div class="job-filters__search">
+        <label class="visually-hidden" for="job-search">Search teaching jobs</label>
+        <input
+          id="job-search"
+          type="search"
+          class="form-control"
+          placeholder="Subject, title or school"
+          [ngModel]="searchText()"
+          (ngModelChange)="searchText.set($event)"
+          name="search"
+          autocomplete="off"
+        />
+        <button type="submit" class="btn btn--primary">Search</button>
+      </div>
+
+      <div class="job-filters__row">
+        @if (filters().subjects.length) {
+          <div class="job-filters__field">
+            <label for="filter-subject">Subject</label>
+            <select
+              id="filter-subject"
+              class="form-control"
+              [value]="applied().subjectId ?? ''"
+              (change)="pickSubject($any($event.target).value)"
+            >
+              <option value="">Any subject</option>
+              @for (option of filters().subjects; track option.id) {
+                <option [value]="option.id">{{ option.name }} ({{ option.jobCount }})</option>
+              }
+            </select>
+          </div>
+        }
+
+        <!--
+          G40: the city master is unseeded, so this list is empty and no control
+          is rendered. Driven by what the server sends, so the day cities exist
+          the control appears without a code change.
+        -->
+        @if (filters().cities.length) {
+          <div class="job-filters__field">
+            <label for="filter-city">City</label>
+            <select
+              id="filter-city"
+              class="form-control"
+              [value]="applied().cityId ?? ''"
+              (change)="pickCity($any($event.target).value)"
+            >
+              <option value="">Any city</option>
+              @for (option of filters().cities; track option.id) {
+                <option [value]="option.id">{{ option.name }} ({{ option.jobCount }})</option>
+              }
+            </select>
+          </div>
+        }
+
+        @if (filters().states.length) {
+          <div class="job-filters__field">
+            <label for="filter-state">State</label>
+            <select
+              id="filter-state"
+              class="form-control"
+              [value]="applied().stateId ?? ''"
+              (change)="pickState($any($event.target).value)"
+            >
+              <option value="">Any state</option>
+              @for (option of filters().states; track option.id) {
+                <option [value]="option.id">{{ option.name }} ({{ option.jobCount }})</option>
+              }
+            </select>
+          </div>
+        }
+
+        @if (filters().classLevels.length) {
+          <div class="job-filters__field">
+            <label for="filter-level">Class level</label>
+            <select
+              id="filter-level"
+              class="form-control"
+              [value]="applied().classLevelId ?? ''"
+              (change)="pickClassLevel($any($event.target).value)"
+            >
+              <option value="">Any level</option>
+              @for (option of filters().classLevels; track option.id) {
+                <option [value]="option.id">{{ option.name }} ({{ option.jobCount }})</option>
+              }
+            </select>
+          </div>
+        }
+
+        @if (hasFilters()) {
+          <button type="button" class="btn btn--ghost job-filters__clear" (click)="clearFilters()">
+            Clear
+          </button>
+        }
+      </div>
+    </form>
+
+    @if (loading()) {
+      <p class="job-state" aria-live="polite">Searching…</p>
+    } @else if (failed()) {
+      <!--
+        Never an empty list for a failure. "No jobs found" would tell a visitor
+        there is no teaching work in India, which is a much worse thing to say
+        wrongly than admitting a problem.
+      -->
+      <p class="job-state job-state--failed" role="alert">
+        We could not load the jobs just now. Please try again in a moment.
+      </p>
+    } @else {
+      <p class="job-results__count" aria-live="polite">
+        @if (total() === 0) {
+          No jobs match this search.
+        } @else {
+          Showing {{ firstOnPage() }}–{{ lastOnPage() }} of {{ total() }}
+          {{ total() === 1 ? 'job' : 'jobs' }}
+        }
+      </p>
+
+      @if (total() === 0) {
+        <div class="job-empty">
+          @if (hasFilters()) {
+            <p>Nothing matched those filters.</p>
+            <button type="button" class="btn btn--ghost" (click)="clearFilters()">
+              Clear the filters
+            </button>
+          } @else {
+            <!--
+              The genuinely empty case: no live vacancies at all. It says so
+              plainly rather than implying the visitor searched wrong.
+            -->
+            <p>There are no live vacancies right now.</p>
+            <p class="job-empty__hint">
+              New jobs appear here as soon as a verified school publishes one.
+              <a routerLink="/continue" [queryParams]="{ mode: 'signup' }">
+                Create a teacher profile
+              </a>
+              and you will be ready to apply the moment one does.
+            </p>
+          }
+        </div>
+      } @else {
+        <ul class="job-cards">
+          @for (job of jobs(); track job.jobUid) {
+            <li class="job-card">
+              <!--
+                The whole card is not a link. The title is, so a screen reader
+                announces a meaningful link text rather than reading the entire
+                card as one anchor.
+              -->
+              <h2 class="job-card__title">
+                <a [routerLink]="['/jobs', slugFor(job)]">{{ job.jobTitle }}</a>
+              </h2>
+
+              <p class="job-card__school">
+                {{ job.schoolName }}
+                @if (job.isSchoolVerified) {
+                  <span class="badge badge--verified" title="We confirmed this school exists and that the person posting is connected to it">
+                    Verified
+                  </span>
+                }
+              </p>
+
+              <dl class="job-card__facts">
+                @if (where(job)) {
+                  <div><dt>Where</dt><dd>{{ where(job) }}</dd></div>
+                }
+                @if (job.subjectName) {
+                  <div><dt>Subject</dt><dd>{{ job.subjectName }}</dd></div>
+                }
+                @if (job.designationName) {
+                  <div><dt>Role</dt><dd>{{ job.designationName }}</dd></div>
+                }
+                @if (job.employmentTypeName) {
+                  <div><dt>Type</dt><dd>{{ job.employmentTypeName }}</dd></div>
+                }
+                @if (experience(job)) {
+                  <div><dt>Experience</dt><dd>{{ experience(job) }}</dd></div>
+                }
+                @if (salary(job)) {
+                  <div><dt>Salary</dt><dd>{{ salary(job) }}</dd></div>
+                }
+                @if (job.noOfVacancies && job.noOfVacancies > 1) {
+                  <div><dt>Vacancies</dt><dd>{{ job.noOfVacancies }}</dd></div>
+                }
+              </dl>
+
+              @if (job.lastDateToApply) {
+                <!--
+                  "Apply by" and not "expires" — the last date IS a day you can
+                  still apply on, which is what fn_EffectiveJobStatusId enforces
+                  server-side and what the suite asserts at the IST boundary.
+                -->
+                <p class="job-card__deadline">Apply by {{ job.lastDateToApply | date: 'd MMM y' }}</p>
+              }
+            </li>
+          }
+        </ul>
+
+        @if (pageCount() > 1) {
+          <nav class="job-pager" aria-label="Job results pages">
+            <button
+              type="button"
+              class="btn btn--ghost"
+              [disabled]="applied().pageNumber <= 1"
+              (click)="goToPage(applied().pageNumber - 1)"
+            >
+              Previous
+            </button>
+
+            <span class="job-pager__position">
+              Page {{ applied().pageNumber }} of {{ pageCount() }}
+            </span>
+
+            <button
+              type="button"
+              class="btn btn--ghost"
+              [disabled]="applied().pageNumber >= pageCount()"
+              (click)="goToPage(applied().pageNumber + 1)"
+            >
+              Next
+            </button>
+          </nav>
+        }
+      }
+    }
+  </div>
+</section>

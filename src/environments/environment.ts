@@ -19,9 +19,34 @@ export const environment = {
   siteUrl: 'http://localhost:4500',
 
   /**
-   * Where the contact form tells people to write until the enquiry endpoint
-   * exists (Phase 7). Configured rather than inlined in the template so it
-   * changes in one place when the real address is decided.
+   * The App API, which from Phase 7A this site reads for job listings, job
+   * detail, FAQ copy and content blocks, and writes to for the contact form.
+   *
+   * 🔴 THE FIRST TIME THE PUBLIC SITE TALKS TO THE BACKEND AT ALL. Until 7A it
+   * was a static brochure that only linked away to the two apps.
+   *
+   * ⚠️ ONE URL FOR BOTH THE SERVER AND THE BROWSER, and that is a choice worth
+   * knowing about. These pages are server-rendered, so the SAME request is
+   * made twice in different places: once by Node during SSR, once by the
+   * browser if it needs fresh data. In this local setup both can reach
+   * localhost:5299, so one value does.
+   *
+   * In a real deployment they diverge — Node would use an internal address
+   * (http://api:8080) and the browser the public one (https://api.staffroom.in)
+   * — and that needs two values plus a platform check, NOT one value that
+   * happens to work from one side. It is not invented here because this project
+   * has made no deployment-topology decision yet, and a guessed internal
+   * hostname is a config line that is wrong in a way nothing catches until
+   * production. See environment.production.ts.
+   */
+  apiUrl: 'http://localhost:5299/api',
+
+  /**
+   * The address shown on /contact beside the form.
+   *
+   * ⚠️ 7A wired the form to a real endpoint, so this is no longer the ONLY way
+   * to reach us — but it stays, and is still offered when a submission fails.
+   * A form that cannot submit and gives no alternative loses the enquiry.
    */
   contactEmail: 'hello@staffroom.in',
 

@@ -144,6 +144,38 @@
     font-size: var(--jp-font-size-sm);
     color: var(--jp-text-muted);
   }
+
+  // -------------------------------------------------------------------------
+  // Phase 7A. .job-card was written in 2.44 and never used by anything — the
+  // public job listing is its first consumer, and these are the two parts
+  // that listing needs beyond what was already here.
+  //
+  // A definition list rather than the flat __meta row: every fact carries a
+  // LABEL, so a screen reader says "Salary: 25,000 a month" instead of
+  // reading a line of numbers with nothing to attach them to.
+  // -------------------------------------------------------------------------
+  &__facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    gap: v.$space-2 v.$space-4;
+    margin: v.$space-1 0 0;
+    font-size: var(--jp-font-size-sm);
+
+    dt {
+      color: var(--jp-text-muted);
+    }
+
+    dd {
+      margin: 0;
+      font-weight: var(--jp-font-weight-medium);
+    }
+  }
+
+  &__deadline {
+    margin: 0;
+    font-size: var(--jp-font-size-sm);
+    color: var(--jp-text-muted);
+  }
 }
 
 

@@ -83,17 +83,39 @@ export function signUpUrl(audience: Audience, redirectTo?: string): string {
 }
 
 /**
- * "Apply" on a job page.
+ * "Apply" on a job page. Always the teacher app, always signup.
  *
- * Always the teacher app, always signup: someone reading a job advert on the
- * public site and pressing Apply does not have an account yet in the common
- * case, and the teacher app is responsible for offering "already registered?"
- * on its own signup screen. Sending them to a chooser first would be asking a
- * question they have already answered by being on a job page.
+ * Someone reading a job advert and pressing Apply does not have an account yet
+ * in the common case, and the teacher app offers "already registered?" on its
+ * own signup screen. Sending them to the chooser first would ask a question
+ * they answered by being on a job page — which is 2.43's reasoning, and what
+ * 7A-0.0 confirmed when the brief's citation pointed the other way.
  *
- * The job travels as a redirect target so the application resumes where they
- * left off instead of dropping them on a dashboard.
+ * 🔴 THE JOB DOES NOT TRAVEL, AND SAYING SO IS THE POINT OF THIS COMMENT.
+ *
+ * This function used to return
+ * `signUpUrl('teacher', '/jobs/${slug}/apply')`, written in 2.44 ahead of the
+ * pages that would call it. Nothing ever called it, and when 7A came to, three
+ * separate things turned out to be missing on the other side:
+ *
+ *   1. jp-teacher reads no `?redirect=` ANYWHERE. Only reset-password reads a
+ *      query parameter at all (its `token`), so the whole parameter was
+ *      silently dropped and the visitor landed on /dashboard.
+ *   2. jp-teacher has no `jobs/:id/apply` route. Applying happens ON the job
+ *      detail page, so the target did not exist either.
+ *   3. jp-teacher's `jobs/:jobId` does `Number(params.get('jobId'))` — an
+ *      INTEGER id. The public surface deliberately exposes only `jobUid` and
+ *      the raw-bytes allowlist in public-contract.mjs fails on a `"jobId"` key,
+ *      so the public site cannot name a job in a way that route understands.
+ *
+ * Emitting a redirect that nothing reads is worse than not emitting one: the
+ * next person debugging "why does Apply not resume" would start from the
+ * assumption that this link is correct. So the parameter is gone until the
+ * other side can honour it — recorded as G41, which lists all three pieces.
+ *
+ * ⚠️ Takes no job argument for the same reason. An unused `jobUid` parameter
+ * would read as though the job were being carried.
  */
-export function applyToJobUrl(jobSlug: string): string {
-  return signUpUrl('teacher', `/jobs/${jobSlug}/apply`);
+export function applyAsTeacherUrl(): string {
+  return signUpUrl('teacher');
 }

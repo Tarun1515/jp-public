@@ -77,6 +77,11 @@
       <div>
         <p class="site-footer__heading">For teachers</p>
         <ul class="site-footer__links">
+          <!--
+            Phase 7A. Browsing comes before registering: a teacher can see every
+            vacancy without an account, and 7A's corrected FAQ says so.
+          -->
+          <li><a routerLink="/jobs">Browse teaching jobs</a></li>
           <li><a routerLink="/how-it-works" fragment="teachers">How it works</a></li>
           <li><a [href]="teacherSignUpUrl">Create a profile</a></li>
           <li><a routerLink="/faq" fragment="teachers">Teacher FAQ</a></li>

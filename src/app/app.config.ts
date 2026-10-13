@@ -1,4 +1,5 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { provideHttpClient, withFetch } from '@angular/common/http';
 import {
   provideRouter,
   withComponentInputBinding,
@@ -36,6 +37,21 @@ export const appConfig: ApplicationConfig = {
         scrollPositionRestoration: 'top',
       }),
     ),
+
+    /**
+     * 🔴 withFetch, and it is not optional here.
+     *
+     * The default XHR backend has no server-side implementation, so an
+     * HttpClient call during SSR would fail. These pages fetch jobs while the
+     * server renders them — that IS the page — so the fetch backend is what
+     * makes server rendering work at all.
+     *
+     * ⚠️ It also makes provideClientHydration's transfer cache effective: a
+     * GET made during SSR is serialised into the document and replayed from
+     * there on hydration, so the browser does not immediately re-request every
+     * job the server already fetched.
+     */
+    provideHttpClient(withFetch()),
 
     provideClientHydration(),
   ],

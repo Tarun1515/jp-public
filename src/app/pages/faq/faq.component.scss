@@ -39,3 +39,23 @@
     line-height: var(--jp-line-height-relaxed);
   }
 }
+
+// ---------------------------------------------------------------------------
+// Loading and failure states — Phase 7A, when the copy moved to the database.
+//
+// A page that fetches can fail, and the states are styled rather than left as
+// bare text so the failure reads as a considered message instead of a glitch.
+// ---------------------------------------------------------------------------
+.faq-state {
+  margin: 0;
+  padding: v.$space-6;
+  border-radius: var(--jp-radius-lg);
+  background: var(--jp-surface-sunken);
+  color: var(--jp-text-muted);
+  text-align: center;
+
+  &--failed {
+    background: var(--jp-danger-soft);
+    color: var(--jp-danger-text);
+  }
+}

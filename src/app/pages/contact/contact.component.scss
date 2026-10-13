@@ -57,41 +57,44 @@
 }
 
 // A fieldset needs its border and padding removed to sit in the form flow.
-.field--group {
-  border: 0;
-  padding: 0;
-  margin: 0;
-  min-inline-size: 0;
+// -----------------------------------------------------------------------------
+// 🔒 THE HONEYPOT
+//
+// Hidden from people, present in the markup. Phase 7A.
+//
+// 🔴 NOT `display: none` AND NOT `visibility: hidden`, deliberately. Both are
+// the first thing a form-filling bot checks for, and a field it can see is
+// hidden is a field it knows to leave alone. Positioned off-screen instead:
+// it is a real, visible, fillable input as far as the DOM is concerned.
+//
+// ⚠️ The markup carries the other two halves — `tabindex="-1"` so the keyboard
+// never reaches it, and `aria-hidden` so a screen reader never announces it.
+// Off-screen alone would be a field a blind visitor is asked to fill in, and
+// filling it would silently discard their enquiry.
+// -----------------------------------------------------------------------------
+.honeypot {
+  position: absolute;
+  inset-inline-start: -9999px;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
 }
 
-.choices {
-  display: flex;
-  flex-wrap: wrap;
-  gap: v.$space-4;
-  margin-block-start: v.$space-2;
-}
-
-.choice {
-  display: inline-flex;
-  align-items: center;
-  gap: v.$space-2;
-  cursor: pointer;
-
-  input {
-    accent-color: var(--jp-primary);
-    inline-size: 1.05rem;
-    block-size: 1.05rem;
-
-    @include m.focus-ring;
-  }
+.field__optional {
+  color: var(--jp-text-muted);
+  font-weight: var(--jp-font-weight-normal);
 }
 
 // -----------------------------------------------------------------------------
-// THE "CANNOT SEND" NOTICE
+// THE NOTICE — now two states, where 2.44 had one
 //
-// Warning-toned, not success-toned, and it appears ABOVE the form so it is not
-// missed on a phone. It is the correct answer, not an error the user caused —
-// hence turmeric rather than the marking red.
+// It used to say only "this form cannot send yet", because there was no
+// endpoint. 7A wired one, so the same box now carries either the thank-you or
+// a send failure, and it stays ABOVE the form so it is not missed on a phone.
+//
+// ⚠️ Still warning-toned rather than success-toned. Turmeric reads as "read
+// this" for both outcomes; a green panel for the thank-you and a red one for
+// the failure would be two components where one does.
 // -----------------------------------------------------------------------------
 
 .notice {

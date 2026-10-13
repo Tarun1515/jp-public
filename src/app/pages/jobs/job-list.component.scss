@@ -1,0 +1,132 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+
+// =============================================================================
+// The public job listing — Phase 7A.
+//
+// `.job-card` and `.badge--verified` are GLOBAL (src/styles/_components.scss):
+// they were written in 2.44 for this page and this is their first consumer.
+// What lives here is the page's own furniture — the filter bar, the result
+// states and the pager — which nothing else uses.
+// =============================================================================
+
+.job-filters {
+  @include m.flex-column(v.$space-4);
+
+  margin-bottom: v.$space-6;
+  padding: v.$space-5;
+  background: var(--jp-surface-sunken);
+  border-radius: var(--jp-radius-lg);
+
+  &__search {
+    display: flex;
+    gap: v.$space-3;
+
+    // The input takes the room; the button takes what it needs.
+    .form-control {
+      flex: 1 1 auto;
+      min-width: 0; // without this a flex item refuses to shrink below its content
+    }
+  }
+
+  &__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: v.$space-3 v.$space-4;
+  }
+
+  &__field {
+    @include m.flex-column(v.$space-1);
+
+    // Narrow enough that four sit on a desktop row, wide enough for a long
+    // subject name. Below that they wrap, which is the intended behaviour
+    // rather than a fallback.
+    flex: 1 1 11rem;
+
+    label {
+      font-size: var(--jp-font-size-sm);
+      color: var(--jp-text-muted);
+    }
+  }
+
+  &__clear {
+    flex: 0 0 auto;
+  }
+
+  @include m.down(sm) {
+    &__search {
+      flex-direction: column;
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Result states.
+//
+// Loading, failed and empty are three DIFFERENT messages, and the failed one is
+// visually distinct on purpose: "no jobs match" and "we could not load the
+// jobs" must never look like the same thing to someone scanning the page.
+// -----------------------------------------------------------------------------
+.job-state {
+  margin: 0;
+  padding: v.$space-6;
+  border-radius: var(--jp-radius-lg);
+  background: var(--jp-surface-sunken);
+  color: var(--jp-text-muted);
+  text-align: center;
+
+  &--failed {
+    background: var(--jp-danger-soft);
+    color: var(--jp-danger-text);
+  }
+}
+
+.job-results__count {
+  margin: 0 0 v.$space-4;
+  color: var(--jp-text-muted);
+  font-size: var(--jp-font-size-sm);
+}
+
+.job-empty {
+  @include m.flex-column(v.$space-4);
+
+  align-items: flex-start;
+  padding: v.$space-8 v.$space-6;
+  background: var(--jp-surface-sunken);
+  border-radius: var(--jp-radius-lg);
+
+  p {
+    margin: 0;
+  }
+
+  &__hint {
+    color: var(--jp-text-muted);
+    font-size: var(--jp-font-size-sm);
+  }
+}
+
+.job-cards {
+  @include m.flex-column(v.$space-4);
+
+  // A list of cards, not bullets.
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.job-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: v.$space-4;
+  margin-top: v.$space-6;
+
+  &__position {
+    color: var(--jp-text-muted);
+    font-size: var(--jp-font-size-sm);
+
+    // Keeps "Page 1 of 9" from shifting the buttons as the digits change.
+    @include m.tabular;
+  }
+}

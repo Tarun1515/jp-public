@@ -11,110 +11,157 @@
 <section class="section section--alt">
   <div class="container measure--wide contact">
     <div class="contact__form-column">
-      <!--
-        ⚠️ PHASE 7 — this form has no endpoint. It validates and then tells the
-        visitor to email instead. Do not replace this with a success message
-        until there is somewhere for the submission to go.
-      -->
-      @if (state() === 'unsent') {
-        <div class="notice" role="alert">
-          <p class="notice__title">This form cannot send yet</p>
+      @if (state() === 'sent') {
+        <!--
+          🔴 "We have your message", not "we will reply within 24 hours".
+          Nothing promises a response time, because nothing enforces one — the
+          enquiry lands in an admin queue (7B) and that is all we can honestly
+          say happened.
+
+          ⚠️ A bot that filled the honeypot reads these exact words and no row
+          was written. That is deliberate: a different message for the bot is a
+          message that teaches whoever wrote it which field to leave alone.
+        -->
+        <div class="notice" role="status">
+          <p class="notice__title">Thank you — we have your message</p>
           <p class="notice__body">
-            Online enquiries are not switched on. Your message has not been sent and we have not
-            stored it — we would rather tell you than let it disappear.
+            We will reply to the email address you gave us. If it is urgent, you can also write
+            to <a [href]="'mailto:' + contactEmail">{{ contactEmail }}</a>.
           </p>
-          <p class="notice__body">
-            Please email <a [href]="'mailto:' + contactEmail">{{ contactEmail }}</a> instead. The
-            button below opens your email app with what you wrote already filled in.
-          </p>
-          <a class="btn btn--primary" [href]="mailtoHref()">Send it by email</a>
         </div>
-      }
+      } @else {
+        @if (state() === 'failed' && form.valid) {
+          <!--
+            Shown only when the FORM was valid and the send still failed — a
+            server error, a rate limit, or no network. A validation failure
+            shows its messages beside the fields instead.
 
-      <form class="contact__form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
-        <div class="field">
-          <label class="field__label" for="name">Your name</label>
-          <input
-            class="form-control"
-            id="name"
-            type="text"
-            autocomplete="name"
-            formControlName="name"
-            [attr.aria-invalid]="showError('name')"
-            [attr.aria-describedby]="showError('name') ? 'name-error' : null"
-          />
-          @if (errorFor('name'); as message) {
-            <p class="field__error" id="name-error">{{ message }}</p>
-          }
-        </div>
-
-        <div class="field">
-          <label class="field__label" for="email">Email address</label>
-          <input
-            class="form-control"
-            id="email"
-            type="email"
-            inputmode="email"
-            autocomplete="email"
-            formControlName="email"
-            [attr.aria-invalid]="showError('email')"
-            [attr.aria-describedby]="showError('email') ? 'email-error' : null"
-          />
-          @if (errorFor('email'); as message) {
-            <p class="field__error" id="email-error">{{ message }}</p>
-          }
-        </div>
-
-        <fieldset class="field field--group">
-          <legend class="field__label">I am</legend>
-          <div class="choices">
-            <label class="choice">
-              <input type="radio" formControlName="role" value="teacher" />
-              <span>A teacher</span>
-            </label>
-            <label class="choice">
-              <input type="radio" formControlName="role" value="school" />
-              <span>A school</span>
-            </label>
-            <label class="choice">
-              <input type="radio" formControlName="role" value="other" />
-              <span>Someone else</span>
-            </label>
+            The mailto: button is the half 2.44 was right about: a form that
+            cannot submit and offers no alternative loses the enquiry.
+          -->
+          <div class="notice" role="alert">
+            <p class="notice__title">We could not send that just now</p>
+            <p class="notice__body">
+              Nothing was lost — what you wrote is still in the form below. Please try again in a
+              moment, or email <a [href]="'mailto:' + contactEmail">{{ contactEmail }}</a>
+              instead.
+            </p>
+            <a class="btn btn--primary" [href]="mailtoHref()">Send it by email</a>
           </div>
-        </fieldset>
+        }
 
-        <div class="field">
-          <label class="field__label" for="subject">Subject</label>
-          <input
-            class="form-control"
-            id="subject"
-            type="text"
-            formControlName="subject"
-            [attr.aria-invalid]="showError('subject')"
-            [attr.aria-describedby]="showError('subject') ? 'subject-error' : null"
-          />
-          @if (errorFor('subject'); as message) {
-            <p class="field__error" id="subject-error">{{ message }}</p>
-          }
-        </div>
+        <form class="contact__form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+          <div class="field">
+            <label class="field__label" for="name">Your name</label>
+            <input
+              class="form-control"
+              id="name"
+              type="text"
+              autocomplete="name"
+              formControlName="name"
+              [attr.aria-invalid]="showError('name')"
+              [attr.aria-describedby]="showError('name') ? 'name-error' : null"
+            />
+            @if (errorFor('name'); as message) {
+              <p class="field__error" id="name-error">{{ message }}</p>
+            }
+          </div>
 
-        <div class="field">
-          <label class="field__label" for="message">Message</label>
-          <textarea
-            class="form-control"
-            id="message"
-            rows="6"
-            formControlName="message"
-            [attr.aria-invalid]="showError('message')"
-            [attr.aria-describedby]="showError('message') ? 'message-error' : null"
-          ></textarea>
-          @if (errorFor('message'); as message) {
-            <p class="field__error" id="message-error">{{ message }}</p>
-          }
-        </div>
+          <div class="field">
+            <label class="field__label" for="email">Email address</label>
+            <input
+              class="form-control"
+              id="email"
+              type="email"
+              inputmode="email"
+              autocomplete="email"
+              formControlName="email"
+              [attr.aria-invalid]="showError('email')"
+              [attr.aria-describedby]="showError('email') ? 'email-error' : null"
+            />
+            @if (errorFor('email'); as message) {
+              <p class="field__error" id="email-error">{{ message }}</p>
+            }
+          </div>
 
-        <button class="btn btn--primary btn--lg" type="submit">Send message</button>
-      </form>
+          <div class="field">
+            <label class="field__label" for="mobile">
+              Mobile number <span class="field__optional">(optional)</span>
+            </label>
+            <input
+              class="form-control"
+              id="mobile"
+              type="tel"
+              inputmode="numeric"
+              autocomplete="tel-national"
+              formControlName="mobile"
+              [attr.aria-invalid]="showError('mobile')"
+              [attr.aria-describedby]="showError('mobile') ? 'mobile-error' : null"
+            />
+            @if (errorFor('mobile'); as message) {
+              <p class="field__error" id="mobile-error">{{ message }}</p>
+            }
+          </div>
+
+          <div class="field">
+            <label class="field__label" for="subject">Subject</label>
+            <input
+              class="form-control"
+              id="subject"
+              type="text"
+              formControlName="subject"
+              [attr.aria-invalid]="showError('subject')"
+              [attr.aria-describedby]="showError('subject') ? 'subject-error' : null"
+            />
+            @if (errorFor('subject'); as message) {
+              <p class="field__error" id="subject-error">{{ message }}</p>
+            }
+          </div>
+
+          <div class="field">
+            <label class="field__label" for="message">Message</label>
+            <textarea
+              class="form-control"
+              id="message"
+              rows="6"
+              formControlName="message"
+              [attr.aria-invalid]="showError('message')"
+              [attr.aria-describedby]="showError('message') ? 'message-error' : null"
+            ></textarea>
+            @if (errorFor('message'); as message) {
+              <p class="field__error" id="message-error">{{ message }}</p>
+            }
+          </div>
+
+          <!--
+            🔒 THE HONEYPOT. Hidden from people three ways, because one is not
+            enough: off-screen (not `display:none`, which some bots skip),
+            `tabindex="-1"` so the keyboard never lands on it, and
+            `aria-hidden` so a screen reader never announces it.
+
+            `autocomplete="off"` matters too — a browser helpfully filling a
+            field called "website" would make a real person look like a bot and
+            silently discard their enquiry.
+
+            ⚠️ Nothing in this app reads it. The SERVER decides, silently; see
+            the class comment for why it must not be checked here.
+          -->
+          <div class="honeypot" aria-hidden="true">
+            <label for="website">Website</label>
+            <input
+              id="website"
+              type="text"
+              tabindex="-1"
+              autocomplete="off"
+              formControlName="website"
+            />
+          </div>
+
+          <button class="btn btn--primary btn--lg" type="submit" [disabled]="state() === 'sending'">
+            {{ state() === 'sending' ? 'Sending…' : 'Send message' }}
+          </button>
+        </form>
+      }
     </div>
 
     <aside class="contact__aside" aria-labelledby="other-ways">
