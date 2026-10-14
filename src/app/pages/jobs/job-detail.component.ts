@@ -1,12 +1,12 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 
 import { PublicApiService, PublicJobDetail, uidFromSlug } from '../../core/public-api.service';
 import { SeoService, titleBudget } from '../../core/seo.service';
-import { applyAsTeacherUrl } from '../../core/portal-links';
+import { applyToJobUrl } from '../../core/portal-links';
 
 /**
  * One public job, with the school's public face. Phase 7A.
@@ -55,12 +55,20 @@ export class JobDetailComponent implements OnInit {
   protected readonly missing = signal(false);
   protected readonly failed = signal(false);
 
-  /**
-   * ⚠️ No job travels with this link, and that is recorded rather than hidden.
-   * See `applyAsTeacherUrl` and G41: jp-teacher reads no `?redirect=`, has no
-   * apply route, and keys jobs by an integer the public surface never exposes.
+/**
+   * Where Apply goes. Computed per job, because the job travels with it.
+   *
+   * 🔴 A SIGNAL, not a field. The previous version carried no job so one value
+   * served the whole component; now the URL depends on which job loaded, and a
+   * field initialised in the constructor would have been built before the
+   * response arrived — producing a link to `/jobs/undefined/apply` that looks
+   * right in the markup.
    */
-  protected readonly applyUrl = applyAsTeacherUrl();
+  protected readonly applyUrl = computed(() => {
+    const job = this.job();
+
+    return job ? applyToJobUrl(job.jobUid) : null;
+  });
 
   ngOnInit(): void {
     this.route.paramMap

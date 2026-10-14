@@ -73,7 +73,7 @@
             ⚠️ An absolute URL into another application, so routerLink is wrong
             here — it is a different origin, not a route.
           -->
-          <a class="btn btn--primary btn--lg" [href]="applyUrl" rel="noopener">
+          <a class="btn btn--primary btn--lg" [href]="applyUrl()" rel="noopener">
             Apply for this job
           </a>
         </div>
@@ -199,7 +199,7 @@
         </div>
 
         <div class="actions job-detail__footer-actions">
-          <a class="btn btn--primary btn--lg" [href]="applyUrl" rel="noopener">
+          <a class="btn btn--primary btn--lg" [href]="applyUrl()" rel="noopener">
             Apply for this job
           </a>
           <a class="btn btn--ghost" routerLink="/jobs">Browse other jobs</a>

@@ -63,27 +63,52 @@ const AUTH_PATHS: Readonly<Record<AuthMode, string>> = {
   signup: '/auth/register',
 };
 
-export function authUrl(audience: Audience, mode: AuthMode, redirectTo?: string): string {
+/*
+  🔴 THE PARAMETER IS `returnUrl`, AND IT USED TO BE `redirect` (7B-0).
+
+  It was renamed because `returnUrl` already existed on the other side and
+  `redirect` never did. jp-shared's auth guard and its session-expiry
+  interceptor both write `?returnUrl=` — and until 7B-0 nothing anywhere read
+  one, in any of the three apps. Measured: three hits across four repositories,
+  every one a write.
+
+  So there were two half-built mechanisms for one job. Completing the one with
+  two live emitters and renaming the one with none was the cheaper direction,
+  and it closed a second hole on the way: a teacher whose session expired
+  halfway through an application now returns to it instead of landing on the
+  dashboard.
+
+  ⚠️ Two names for one thing would have been worse than either — the receiving
+  screen would read both, and which won would be a coin toss nobody documented.
+
+  🔒 The receiving app VALIDATES it (jp-shared `safeInternalPath`): an
+  app-relative path only, never an absolute or protocol-relative URL. That
+  check is the reason this is safe to emit at all, and it lives there rather
+  than here because this side cannot enforce anything about what the other
+  side does with a URL.
+*/
+export function authUrl(audience: Audience, mode: AuthMode, returnUrl?: string): string {
   const url = `${baseUrl(audience)}${AUTH_PATHS[mode]}`;
 
-  if (!redirectTo) {
+  if (!returnUrl) {
     return url;
   }
 
-  return `${url}?redirect=${encodeURIComponent(redirectTo)}`;
+  return `${url}?returnUrl=${encodeURIComponent(returnUrl)}`;
 }
 
 /** Convenience wrappers, so call sites read as what they do. */
-export function signInUrl(audience: Audience, redirectTo?: string): string {
-  return authUrl(audience, 'login', redirectTo);
+export function signInUrl(audience: Audience, returnUrl?: string): string {
+  return authUrl(audience, 'login', returnUrl);
 }
 
-export function signUpUrl(audience: Audience, redirectTo?: string): string {
-  return authUrl(audience, 'signup', redirectTo);
+export function signUpUrl(audience: Audience, returnUrl?: string): string {
+  return authUrl(audience, 'signup', returnUrl);
 }
 
 /**
- * "Apply" on a job page. Always the teacher app, always signup.
+ * "Apply" on a job page. Always the teacher app, always signup, and the job
+ * travels with it.
  *
  * Someone reading a job advert and pressing Apply does not have an account yet
  * in the common case, and the teacher app offers "already registered?" on its
@@ -91,31 +116,33 @@ export function signUpUrl(audience: Audience, redirectTo?: string): string {
  * they answered by being on a job page — which is 2.43's reasoning, and what
  * 7A-0.0 confirmed when the brief's citation pointed the other way.
  *
- * 🔴 THE JOB DOES NOT TRAVEL, AND SAYING SO IS THE POINT OF THIS COMMENT.
+ * ---------------------------------------------------------------------------
+ * 🔴 THE JOB TRAVELS AGAIN — AND IT DID NOT, FOR ONE PHASE (G41, CLOSED 7B-0)
+ * ---------------------------------------------------------------------------
+ * 2.44 wrote this function ahead of the pages that would call it. 7A became
+ * its first caller and found THREE things missing on the other side, so the
+ * parameter was removed rather than left to be silently dropped:
  *
- * This function used to return
- * `signUpUrl('teacher', '/jobs/${slug}/apply')`, written in 2.44 ahead of the
- * pages that would call it. Nothing ever called it, and when 7A came to, three
- * separate things turned out to be missing on the other side:
+ *   1. jp-teacher read no redirect parameter anywhere. Only reset-password
+ *      read a query parameter at all (its `token`).
+ *   2. There was no `jobs/:id/apply` route to land on.
+ *   3. `jobs/:jobId` did `Number(params.get('jobId'))` — an INTEGER, which
+ *      the public surface deliberately never exposes (2.47), and
+ *      public-contract.mjs's key allowlist FAILS on a `"jobId"` key.
  *
- *   1. jp-teacher reads no `?redirect=` ANYWHERE. Only reset-password reads a
- *      query parameter at all (its `token`), so the whole parameter was
- *      silently dropped and the visitor landed on /dashboard.
- *   2. jp-teacher has no `jobs/:id/apply` route. Applying happens ON the job
- *      detail page, so the target did not exist either.
- *   3. jp-teacher's `jobs/:jobId` does `Number(params.get('jobId'))` — an
- *      INTEGER id. The public surface deliberately exposes only `jobUid` and
- *      the raw-bytes allowlist in public-contract.mjs fails on a `"jobId"` key,
- *      so the public site cannot name a job in a way that route understands.
+ * 7B-0 built all three: ReturnUrlService reads and validates the parameter,
+ * `jobs/:jobUid/apply` resolves a job by uid through the same procedure and
+ * the same WHERE clause as the id route, and this function is its caller
+ * again.
  *
- * Emitting a redirect that nothing reads is worse than not emitting one: the
- * next person debugging "why does Apply not resume" would start from the
- * assumption that this link is correct. So the parameter is gone until the
- * other side can honour it — recorded as G41, which lists all three pieces.
+ * ⚠️ THE UID, NOT THE SLUG. The slug's leading words are decoration for a
+ * reader; the teacher app looks the job up by uid and has no use for them.
+ * Sending the slug would mean a second place that has to know how to strip a
+ * uid off the end of one.
  *
- * ⚠️ Takes no job argument for the same reason. An unused `jobUid` parameter
- * would read as though the job were being carried.
+ * 🔒 The receiving app validates the path before using it. Nothing here can
+ * enforce that, which is exactly why it is enforced there.
  */
-export function applyAsTeacherUrl(): string {
-  return signUpUrl('teacher');
+export function applyToJobUrl(jobUid: string): string {
+  return signUpUrl('teacher', `/jobs/${jobUid}/apply`);
 }
