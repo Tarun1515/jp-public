@@ -184,3 +184,40 @@
     max-width: 32rem;
   }
 }
+
+/*
+  ----------------------------------------------------------------------------
+  CMS NOTICES — G44's consumer, Phase 8-0
+  ----------------------------------------------------------------------------
+  A band of admin-published copy, absent unless a block whose key begins HOME_
+  exists. Quiet by design: these are notices around the page's own argument,
+  not a replacement for it.
+
+  ⚠️ No fixed height and no skeleton. The band is fetched after hydration and
+  is usually empty, so reserving space for it would leave a hole on the most
+  visited page of the site every day nobody has published a notice.
+*/
+.notice {
+  padding: var(--jp-space-4, 1rem) var(--jp-space-5, 1.25rem);
+  border-left: 3px solid var(--jp-primary);
+  background: var(--jp-surface-sunken);
+  border-radius: var(--jp-radius-md, 0.5rem);
+
+  & + & {
+    margin-top: var(--jp-space-3, 0.75rem);
+  }
+}
+
+.notice__title {
+  margin: 0 0 var(--jp-space-2, 0.5rem);
+  font-size: var(--jp-font-size-lg, 1.125rem);
+  font-weight: var(--jp-font-weight-semibold);
+}
+
+.notice__body {
+  margin: 0;
+  color: var(--jp-text-muted);
+
+  /* Shown exactly as the admin typed it, newlines included. */
+  white-space: pre-wrap;
+}

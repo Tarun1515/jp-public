@@ -64,6 +64,36 @@
   </div>
 </section>
 
+<!--
+  🔴 THE CMS NOTICES — G44's consumer.
+
+  Absent unless an admin has published a block whose key begins HOME_. Rendered
+  after hydration (the page is prerendered; see the component), so an edit in
+  the admin CMS screen appears on the next load with no redeploy.
+-->
+@if (notices().length > 0) {
+  <section class="section" aria-labelledby="notices-heading">
+    <div class="container measure--wide">
+      <h2 class="visually-hidden" id="notices-heading">Notices</h2>
+
+      @for (notice of notices(); track notice.blockKey) {
+        <article class="notice">
+          @if (notice.blockTitle) {
+            <h3 class="notice__title">{{ notice.blockTitle }}</h3>
+          }
+
+          <!--
+            ⚠️ Plain text, interpolated — never innerHTML. The admin screen
+            says the copy is shown exactly as written, and a CMS field that
+            renders markup is an XSS hole with an editor attached.
+          -->
+          <p class="notice__body">{{ notice.blockContent }}</p>
+        </article>
+      }
+    </div>
+  </section>
+}
+
 <section class="section section--alt" aria-labelledby="verified-heading">
   <div class="container verified">
     <h2 class="section-title" id="verified-heading">Every school is checked before it can post</h2>
@@ -86,31 +116,38 @@
 </section>
 
 <!--
-  ⚠️ PHASE 4 PLACEHOLDER — featured jobs.
+  🔴 THIS BAND SAID THE LISTINGS WERE NOT LIVE YET. THEY HAVE BEEN SINCE 7A.
 
-  This band is where live vacancies will be listed once JP.App.Api and the job
-  tables exist. It is deliberately NOT filled with mock job cards: fixtures
-  here would have to be built, demoed, and then built again for real.
+  The Phase 4 placeholder promised "vacancy listings go live with the next
+  release" and invited the visitor to come back — on the most-visited page of
+  a site whose /jobs listing has been live, server-rendered and indexed for
+  weeks. Nothing failed, nothing logged; the page simply told every visitor
+  something that had stopped being true.
 
-  To fill it in: replace the contents of .placeholder with the job list
-  component, keep the <section> and its heading, and delete this comment.
+  Found in Phase 8-0 while closing G44, which is the same class of defect: a
+  surface describing a state the product had moved past.
+
+  ⚠️ STILL NOT A FEATURED BAND. 2.81 decided that featured jobs come to this
+  page CLIENT-SIDE after hydration, because prerendering is right for the
+  busiest page and a featured listing is not SEO-critical. That work is not
+  done, and this band does not pretend it is: it points at the real listing
+  instead of describing one that does not exist here.
 -->
 <section class="section" aria-labelledby="jobs-heading">
   <div class="container measure--wide">
     <div class="section__header">
       <h2 class="section-title" id="jobs-heading">Open teaching jobs</h2>
       <p class="text-muted">
-        Vacancy listings go live with the next release. Create your profile now and you can apply
-        the day they do.
+        Every vacancy on Staffroom, from schools we have already checked.
       </p>
     </div>
 
     <div class="placeholder">
-      <p class="placeholder__label">Job listings</p>
+      <p class="placeholder__label">Browse the live listings</p>
       <p class="placeholder__text">
-        Search by subject, level and city will appear here.
+        Filter by subject, level and city — no account needed to look.
       </p>
-      <a class="btn btn--primary" [href]="teacherSignUpUrl">Create a teacher profile</a>
+      <a class="btn btn--primary" routerLink="/jobs">See open jobs</a>
     </div>
   </div>
 </section>
