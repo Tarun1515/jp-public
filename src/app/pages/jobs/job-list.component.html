@@ -31,6 +31,42 @@
         <button type="submit" class="btn btn--primary">Search</button>
       </div>
 
+      <!--
+        🔴 P3 (G27): THESE FOUR ARE THE MASTER-FED DROPDOWNS THE SWEEP COULD
+        NOT CONVERT, AND THE REASON IS ARCHITECTURAL RATHER THAN AN OVERSIGHT.
+
+        Subject, city, state and class level are all fed by
+        `GET /api/public/jobs/filters`, which reads the same masters the portals
+        read — so by G27's rule each of them should be the one shared
+        `<ui-combobox>`, and the state and city boxes are exactly the kind of
+        list that control exists for (902 towns are seeded, and the city list
+        only looks short today because G40 leaves the master empty).
+
+        ⚠️ IT CANNOT BE IMPORTED HERE. jp-public is UNFEDERATED by decision
+        (2.43): it is neither a federation host nor a remote, it has no
+        `jp-shared` tsconfig path and no `federation.config.mjs`, and it does
+        not import a single line of shared JavaScript — the 404 page is
+        hand-written here rather than taken from `jp-shared/pages` for that one
+        reason. Design tokens arrive through a build-time SCSS include path and
+        nothing else does. Reaching for `<ui-combobox>` means reversing that
+        decision, in files outside this folder.
+
+        ⚠️ AND A SECOND COPY IS THE ONE THING G27 FORBIDS. A local searchable
+        select in jp-public would be the second implementation, which is the
+        failure the shared component was built to end — so "just write a small
+        one here" is not the cheap way out it looks like.
+
+        ⚠️ THERE IS ALSO A COST TO WEIGH, NOT JUST A BLOCKER. This page is
+        server-rendered for anonymous visitors, and a native `<select>` ships
+        its option text in the server's HTML; a combobox renders its list only
+        after a focus event. Converting trades crawlable facet names for a
+        search box on lists that are two and four rows long today.
+
+        OWNER: the lead — it is a federation decision, not a screen decision.
+        TRIGGER: either jp-public federating for some other reason, or the city
+        master arriving (G40) and making these lists long enough that the search
+        box is worth the dependency.
+      -->
       <div class="job-filters__row">
         @if (filters().subjects.length) {
           <div class="job-filters__field">
