@@ -1,0 +1,152 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+
+// =============================================================================
+// The public site's searchable filter — P3b.
+//
+// 🔴 THE OPEN LIST IS IN NORMAL FLOW: absolutely positioned inside a
+// position: relative wrapper. jp-shared's twin pins its list to the viewport
+// with position: fixed and coordinates from getBoundingClientRect(), and that
+// is the RIGHT answer THERE and the wrong one here.
+//
+// It is right there because `ui-modal`'s body is overflow-y: auto, so an
+// absolute list inside a dialog extended the dialog's scroll height instead of
+// floating over it — the options were reachable only by scrolling the modal.
+//
+// It would be wrong here for two reasons:
+//
+//   1. ⚠️ NOTHING ON THIS PAGE CLIPS THE LIST. The filter bar is a plain block
+//      inside .section > .container, and there is no overflow rule anywhere up
+//      that chain — so fixed positioning would be buying an escape from a box
+//      that does not exist.
+//   2. 🔴 MEASURING COSTS CORRECTNESS, AND IT HAS ALREADY BEEN PAID ONCE. A
+//      fixed box has to be told where to go, the rect has to be taken AFTER
+//      the browser has scrolled the focused field into view, and it has to be
+//      re-taken on every scroll and resize while the list is open. Measured on
+//      a scrolled page before that settled, the shared list landed 1939px
+//      ABOVE the viewport and never moved. An absolute list inside a relative
+//      wrapper cannot have that bug: the browser does the positioning, and it
+//      does it again for free every time anything moves.
+//
+// ⚠️ SO THIS IS NOT "the simpler one". It is the one with no measurement in
+// it. If a modal or a scroll container is ever put around these filters, that
+// is the moment to revisit — and the moment to read jp-shared's measure()
+// first rather than re-deriving it.
+// =============================================================================
+
+:host {
+  display: block;
+}
+
+.pcb {
+  // The label sat in job-list.component.scss while these were plain selects.
+  // It lives here now: a scoped stylesheet cannot reach into a child
+  // component's template, so leaving it there would have silently dropped it.
+  &__label {
+    display: block;
+    margin-bottom: v.$space-1;
+    font-size: var(--jp-font-size-sm);
+    color: var(--jp-text-muted);
+  }
+
+  &__box {
+    position: relative;
+  }
+
+  &__input {
+    // Room for the chevron.
+    padding-right: 2.5rem;
+    text-overflow: ellipsis;
+  }
+
+  // Drawn, not an icon font: one borrowed glyph is how a component acquires a
+  // dependency the host has to remember to load.
+  &__chevron {
+    position: absolute;
+    top: 50%;
+    right: v.$space-4;
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-top: -0.35rem;
+    border-right: 2px solid var(--jp-text-muted);
+    border-bottom: 2px solid var(--jp-text-muted);
+    transform: rotate(45deg);
+    pointer-events: none;
+  }
+
+  &__box--open &__chevron {
+    margin-top: -0.1rem;
+    transform: rotate(-135deg);
+  }
+
+  &__panel {
+    position: absolute;
+    top: calc(100% + #{v.$space-1});
+    left: 0;
+    right: 0;
+    z-index: var(--jp-z-dropdown);
+    padding: v.$space-1;
+    background: var(--jp-surface);
+    border: 1px solid var(--jp-border-strong);
+    border-radius: var(--jp-radius-md);
+    box-shadow: var(--jp-shadow-lg);
+  }
+
+  &__list {
+    @include m.custom-scrollbar;
+
+    max-height: 15rem;
+    overflow-y: auto;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__option {
+    padding: v.$space-2;
+    border-radius: var(--jp-radius-sm);
+    font-size: var(--jp-font-size-sm);
+    color: var(--jp-text);
+    cursor: pointer;
+
+    // Keyboard and mouse share ONE highlight. Two different "current" rows —
+    // one under the pointer, one under the arrow keys — is a control where
+    // pressing Enter does something other than what is highlighted.
+    &--active {
+      background: var(--jp-primary-soft);
+      color: var(--jp-primary-800);
+    }
+
+    &--chosen {
+      font-weight: var(--jp-font-weight-semibold);
+    }
+  }
+
+  // Usually empty, and an empty <p> with no margin has no height — so the
+  // permanent live region (see the template) costs no layout.
+  &__note {
+    margin: 0;
+    padding: v.$space-2;
+    font-size: var(--jp-font-size-sm);
+    color: var(--jp-text-muted);
+  }
+}
+
+// ⚠️ DEFENSIVE, AND NOT REDUNDANT. `hidden` is a presentation hint the UA
+// stylesheet implements as `display: none` — and ANY author rule that sets
+// display on the same element beats it, silently. Both of these elements are
+// hidden by attribute while the control is closed, and a list that ignored it
+// would float open over the page for ever.
+.pcb__panel[hidden],
+.pcb__list[hidden] {
+  display: none;
+}
+
+// On a phone the list is taller than the on-screen keyboard leaves room for,
+// so it is capped lower — the same 12rem jp-shared's twin uses, for the same
+// reason and deliberately the same number.
+@media (max-width: 36rem) {
+  .pcb__list {
+    max-height: 12rem;
+  }
+}

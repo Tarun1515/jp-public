@@ -7,10 +7,13 @@ import { switchMap, tap } from 'rxjs/operators';
 import {
   JobSearchQuery,
   PublicApiService,
+  PublicFilterOption,
   PublicJobCard,
   PublicJobFilters,
   jobSlug,
 } from '../../core/public-api.service';
+import { ComboboxOption } from '../../ui/combobox/combobox-rank';
+import { PublicComboboxComponent } from '../../ui/combobox/public-combobox.component';
 
 /**
  * The public job listing. Phase 7A.
@@ -43,11 +46,16 @@ import {
  * this page renders no city control. A dropdown whose every option returns
  * nothing is worse than its absence. The day the master is seeded the control
  * appears with no code change, because it is driven by what the server sends.
+ *
+ * ⚠️ AND THAT IS THE DAY THE CITY FILTER BECOMES THE REASON `<app-combobox>`
+ * EXISTS. 902 towns are seeded in `m_mdm_city`'s source data; the client's
+ * complaint was a native dropdown of them on this page. The control is
+ * searchable now, so the seeding is a data change rather than a UI project.
  */
 @Component({
   selector: 'app-job-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, FormsModule, DatePipe],
+  imports: [RouterLink, FormsModule, DatePipe, PublicComboboxComponent],
   templateUrl: './job-list.component.html',
   styleUrl: './job-list.component.scss',
 })
@@ -76,6 +84,24 @@ export class JobListComponent implements OnInit {
 
   /** What the text box holds. Separate from `applied.search`, which is what ran. */
   protected readonly searchText = signal('');
+
+  /**
+   * 🔴 THE FOUR FILTER LISTS ARE `computed`s, AND THAT IS NOT TIDINESS.
+   *
+   * A getter or a method call in the template returns a NEW ARRAY on every
+   * change detection, and `<app-combobox>` hangs two things off the identity of
+   * the array it is given: the lowercased match index it builds once per array
+   * (902 strings, on the city filter), and `@for`'s own keying. A fresh
+   * identity every tick re-does both while somebody is typing, which is exactly
+   * the stutter this control was built to remove.
+   *
+   * ⚠️ `filters()` is written ONCE, from one request, so these four recompute
+   * once per visit and then never again.
+   */
+  protected readonly subjectOptions = computed(() => toOptions(this.filters().subjects));
+  protected readonly cityOptions = computed(() => toOptions(this.filters().cities));
+  protected readonly stateOptions = computed(() => toOptions(this.filters().states));
+  protected readonly classLevelOptions = computed(() => toOptions(this.filters().classLevels));
 
   protected readonly pageCount = computed(() =>
     Math.max(1, Math.ceil(this.total() / this.applied().pageSize)));
@@ -167,20 +193,27 @@ export class JobListComponent implements OnInit {
     this.router.navigate([], { relativeTo: this.route, queryParams: {} });
   }
 
-  protected pickSubject(value: string): void {
-    this.navigate({ subjectId: value || null, pageNumber: null });
+  /*
+    ⚠️ `number | null`, NOT THE SELECT'S STRING. These used to take whatever
+    `$any($event.target).value` handed over, which is how a filter comes out of
+    a native <select>. `<app-combobox>` emits the master id it was given, so the
+    cast and the `|| null` string-emptiness check both go — and `null` is now
+    the control saying "any", rather than the empty string standing in for it.
+  */
+  protected pickSubject(value: number | null): void {
+    this.navigate({ subjectId: value, pageNumber: null });
   }
 
-  protected pickState(value: string): void {
-    this.navigate({ stateId: value || null, pageNumber: null });
+  protected pickState(value: number | null): void {
+    this.navigate({ stateId: value, pageNumber: null });
   }
 
-  protected pickCity(value: string): void {
-    this.navigate({ cityId: value || null, pageNumber: null });
+  protected pickCity(value: number | null): void {
+    this.navigate({ cityId: value, pageNumber: null });
   }
 
-  protected pickClassLevel(value: string): void {
-    this.navigate({ classLevelId: value || null, pageNumber: null });
+  protected pickClassLevel(value: number | null): void {
+    this.navigate({ classLevelId: value, pageNumber: null });
   }
 
   protected goToPage(page: number): void {
@@ -268,6 +301,23 @@ function toPage(value: string | null): number {
   const n = Number(value);
 
   return Number.isInteger(n) && n > 0 ? n : 1;
+}
+
+/**
+ * A master's filter rows, as `<app-combobox>` takes them.
+ *
+ * 🔴 THE COUNT IS IN `text` AND NOT IN `label`, AND THE SPLIT IS THE POINT.
+ * `label` is what a query is matched against; `text` is what is rendered. The
+ * option a visitor reads is "Mathematics (1)" — the live number is useful and
+ * has to stay — but matching against that string would make typing "1" surface
+ * every subject with one vacancy, and typing "(" surface all of them.
+ */
+function toOptions(rows: readonly PublicFilterOption[]): readonly ComboboxOption[] {
+  return rows.map((row) => ({
+    value: row.id,
+    label: row.name,
+    text: `${row.name} (${row.jobCount})`,
+  }));
 }
 
 /** Indian digit grouping — 1,20,000 rather than 120,000. */

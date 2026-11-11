@@ -1,0 +1,140 @@
+<!--
+  Two renderings of ONE control, and which one you get is the whole point.
+
+  🔴 THE LABEL IS OUTSIDE THE SWITCH, and its `for` is the caller's own id — so
+  the accessible name is the same string, pointing at the same id, before and
+  after the upgrade. This is the pair Lighthouse's accessibility score is
+  reading; it must not depend on which branch rendered.
+-->
+<div class="pcb">
+  <label class="pcb__label" [for]="controlId()">{{ label() }}</label>
+
+  @if (!upgraded()) {
+    <!--
+      🔴 WHAT THE SERVER SENDS: a real <select> with every option in it.
+
+      With JavaScript off this is the control — it carries `name`, the form is
+      a GET to /jobs, and the server renders the filtered page. A crawler is
+      served the option text as HTML. And for the moment between first paint
+      and hydration, a visitor who changes it still gets what they asked for,
+      through (change) below.
+
+      🔴 EVERY BINDING IN HERE IS `[attr.…]`, AND THAT IS THE WHOLE DIFFERENCE
+      BETWEEN A WORKING FORM AND A DECORATIVE ONE. A plain `[value]` or
+      `[selected]` sets a DOM PROPERTY, and server-side rendering serialises
+      ATTRIBUTES — a property that the spec does not reflect into one is simply
+      not in the bytes the visitor receives. Two of them matter here:
+
+        · `[value]` on a <select> is not a reflection at all, so arriving at
+          /jobs?subjectId=3 with JavaScript off showed "Any subject" over a
+          filtered list. `[attr.selected]` on the option is in the bytes.
+        · `[value]` on an <option> happens to be specified as a reflection, so
+          it would probably survive — "probably", through whichever DOM
+          implementation the server build is using, for the attribute the GET
+          submit sends. Not a thing to leave to a setter's spec compliance.
+    -->
+    <select
+      class="form-control"
+      [id]="controlId()"
+      [name]="name()"
+      (change)="onNativeChange($event)"
+    >
+      <option value="" [attr.selected]="value() === null ? '' : null">{{ anyLabel() }}</option>
+
+      @for (option of options(); track option.value) {
+        <option
+          [attr.value]="option.value"
+          [attr.selected]="option.value === value() ? '' : null"
+        >{{ option.text }}</option>
+      }
+    </select>
+  } @else {
+    <div class="pcb__box" [class.pcb__box--open]="expanded()">
+      <!--
+        role="combobox" ON THE INPUT, not on a wrapper: the ARIA pattern puts
+        the role on the thing that takes focus, and "combobox" announced on a
+        div nobody can reach helps nobody.
+
+        ⚠️ NO `name` ON THIS INPUT, deliberately. The native select above
+        carries it so the no-JS GET submits the filter; if this input carried
+        it too, a half-typed query would be submitted as `subjectId=har`.
+        Nothing is lost by its absence: with JavaScript on, choosing an option
+        navigates through the router.
+      -->
+      <input
+        class="form-control pcb__input"
+        type="text"
+        role="combobox"
+        autocomplete="off"
+        [id]="controlId()"
+        [value]="display()"
+        [attr.placeholder]="selected() ? selected()!.text : anyLabel()"
+        [attr.aria-expanded]="expanded()"
+        [attr.aria-controls]="listId()"
+        aria-autocomplete="list"
+        [attr.aria-activedescendant]="expanded() && activeIndex() >= 0 ? optionId(activeIndex()) : null"
+        (focus)="onFocus()"
+        (input)="onInput($event)"
+        (keydown)="onKey($event)"
+        (blur)="onBlur()"
+      />
+
+      <span class="pcb__chevron" aria-hidden="true"></span>
+
+      <!--
+        ⚠️ THE PANEL AND THE LIST ARE ALWAYS IN THE DOM, HIDDEN RATHER THAN
+        ABSENT, and that is for `aria-controls` above: it names the <ul> on
+        every render, including while the control is closed, and an
+        aria-controls pointing at an id that does not exist is an invalid
+        attribute value — one of the audits the 100/100 accessibility score is
+        made of.
+
+        ⚠️ It costs nothing to keep. `rows()` is empty while closed, so a
+        closed control holds no <li> at all — 902 cities included.
+      -->
+      <div class="pcb__panel" [hidden]="!open()">
+        <!--
+          ⚠️ `role="option"` CHILDREN ONLY. The "no match" and "showing the
+          first fifty" lines are siblings of this list, not children of it: a
+          listbox whose children are not options is both an
+          aria-required-children violation and a worse thing to hear read out.
+        -->
+        <ul #list class="pcb__list" role="listbox" [id]="listId()" [hidden]="!expanded()">
+          @for (option of rows(); track option.value; let i = $index) {
+            <!--
+              ⚠️ (mousedown) preventDefault, and it is load-bearing: mousedown
+              fires BEFORE blur, so without it the blur handler would close the
+              list and the click would land on nothing.
+            -->
+            <li
+              class="pcb__option"
+              role="option"
+              [id]="optionId(i)"
+              [class.pcb__option--active]="i === activeIndex()"
+              [class.pcb__option--chosen]="option.value === value()"
+              [attr.aria-selected]="option.value === value()"
+              (mousedown)="$event.preventDefault()"
+              (click)="choose(option)"
+            >{{ option.text }}</li>
+          }
+        </ul>
+
+        <!--
+          🔴 THE TWO MESSAGES ARE DIFFERENT ANSWERS, and the empty case is a
+          third. Nothing matched what you typed; or there is more here than we
+          are painting, which is the city list telling you to type another
+          letter rather than silently pretending it has fifty towns in it. A
+          list that is quietly truncated lies about the master.
+        -->
+        <p class="pcb__note" role="status">
+          @if (open() && !rows().length) {
+            No match for "{{ query() }}".
+          } @else if (hiddenCount() > 0) {
+            Showing the first {{ paintedCount() }} of {{ matchCount() }} — keep typing
+            to narrow the list.
+          }
+        </p>
+      </div>
+    </div>
+  }
+</div>

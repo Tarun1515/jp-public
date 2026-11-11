@@ -14,8 +14,25 @@
       A real <form> with a submit, not a keystroke listener. Pressing Enter in
       the box searches, which is what the keyboard expects — and the mobile
       keyboard shows a "search" key for the same reason.
+
+      🔴 `method="get" action="/jobs"` IS THE NO-JAVASCRIPT HALF OF P3b, and it
+      is three words rather than a fallback page. With JavaScript off, this form
+      submits itself: the browser collects `search` and the four selects' `name`
+      attributes into a query string and asks the server for the filtered page,
+      which /jobs renders per request (RenderMode.Server). Without them, the
+      selects with JavaScript off would have been decoration.
+
+      ⚠️ NO `preventDefault` IS NEEDED ON THE JAVASCRIPT PATH. FormsModule puts
+      `NgForm` on every <form> it sees, and NgForm's submit listener returns
+      false — so with JavaScript on the browser never navigates and (ngSubmit)
+      runs instead. Adding an action did not change that.
+
+      ⚠️ `pageNumber` IS NOT IN THE FORM, deliberately: a native submit lands on
+      page 1, which is the same thing every filter change does through the
+      router (see `navigate`). Narrowing a search while on page 4 must not land
+      on a page the new search does not have.
     -->
-    <form class="job-filters" (ngSubmit)="runSearch()" role="search">
+    <form class="job-filters" method="get" action="/jobs" (ngSubmit)="runSearch()" role="search">
       <div class="job-filters__search">
         <label class="visually-hidden" for="job-search">Search teaching jobs</label>
         <input
@@ -32,112 +49,102 @@
       </div>
 
       <!--
-        🔴 P3 (G27): THESE FOUR ARE THE MASTER-FED DROPDOWNS THE SWEEP COULD
-        NOT CONVERT, AND THE REASON IS ARCHITECTURAL RATHER THAN AN OVERSIGHT.
+        🔴 P3b (G27): THESE FOUR ARE SEARCHABLE NOW, AND THEY ARE A DECLARED
+        SECOND IMPLEMENTATION RATHER THAN A FORGOTTEN ONE.
 
         Subject, city, state and class level are all fed by
         `GET /api/public/jobs/filters`, which reads the same masters the portals
         read — so by G27's rule each of them should be the one shared
-        `<ui-combobox>`, and the state and city boxes are exactly the kind of
-        list that control exists for (902 towns are seeded, and the city list
-        only looks short today because G40 leaves the master empty).
+        `<ui-combobox>`. They are not, and the record of WHY has replaced the
+        record of why they could not be converted at all:
 
-        ⚠️ IT CANNOT BE IMPORTED HERE. jp-public is UNFEDERATED by decision
-        (2.43): it is neither a federation host nor a remote, it has no
-        `jp-shared` tsconfig path and no `federation.config.mjs`, and it does
-        not import a single line of shared JavaScript — the 404 page is
-        hand-written here rather than taken from `jp-shared/pages` for that one
-        reason. Design tokens arrive through a build-time SCSS include path and
-        nothing else does. Reaching for `<ui-combobox>` means reversing that
-        decision, in files outside this folder.
+        ⚠️ `<ui-combobox>` STILL CANNOT BE IMPORTED HERE. jp-public is
+        UNFEDERATED by decision 2.43: no `jp-shared` tsconfig path, no
+        `federation.config.mjs`, not a line of shared JavaScript — the 404 page
+        is hand-written here and `public-api.service.ts` re-declares
+        `ApiResponse<T>` for that same one reason. Design tokens arrive through
+        a build-time SCSS include path and nothing else crosses. That decision
+        is unchanged; what changed is that waiting for it stopped being free.
 
-        ⚠️ AND A SECOND COPY IS THE ONE THING G27 FORBIDS. A local searchable
-        select in jp-public would be the second implementation, which is the
-        failure the shared component was built to end — so "just write a small
-        one here" is not the cheap way out it looks like.
+        🔴 SO THE TWIN IS DECLARED AND ASSERTED, NOT ACCIDENTAL.
+        `<app-combobox>` (src/app/ui/combobox) names `<ui-combobox>` as its twin
+        in its own header, jp-shared's names this one back, and the filtering
+        and ranking rule both of them obey is held as DATA in ONE file that BOTH
+        repositories' suites run:
 
-        ⚠️ THERE IS ALSO A COST TO WEIGH, NOT JUST A BLOCKER. This page is
-        server-rendered for anonymous visitors, and a native `<select>` ships
-        its option text in the server's HTML; a combobox renders its list only
-        after a focus event. Converting trades crawlable facet names for a
-        search box on lists that are two and four rows long today.
+            jp-docs/scripts/verify/lib/combobox-vectors.mjs
 
-        OWNER: the lead — it is a federation decision, not a screen decision.
-        TRIGGER: either jp-public federating for some other reason, or the city
-        master arriving (G40) and making these lists long enough that the search
-        box is worth the dependency.
+        Change the rule in either component and the other repo's suite goes red.
+
+        🔴 AND THE SEO COST IS NOT PAID, BECAUSE THE SERVER STILL SENDS A REAL
+        <select>. That was the other half of the old objection — "a combobox
+        renders its list only after a focus event" — and it is why these are
+        progressive enhancement rather than a replacement: the HTML this route
+        serves (RenderMode.Server) contains a native select with every option's
+        text in it, the form is a real GET that filters server-side with
+        JavaScript off, and the type-ahead only exists after hydration.
       -->
       <div class="job-filters__row">
         @if (filters().subjects.length) {
           <div class="job-filters__field">
-            <label for="filter-subject">Subject</label>
-            <select
-              id="filter-subject"
-              class="form-control"
-              [value]="applied().subjectId ?? ''"
-              (change)="pickSubject($any($event.target).value)"
-            >
-              <option value="">Any subject</option>
-              @for (option of filters().subjects; track option.id) {
-                <option [value]="option.id">{{ option.name }} ({{ option.jobCount }})</option>
-              }
-            </select>
+            <app-combobox
+              controlId="filter-subject"
+              name="subjectId"
+              label="Subject"
+              anyLabel="Any subject"
+              [options]="subjectOptions()"
+              [value]="applied().subjectId ?? null"
+              (valueChange)="pickSubject($event)"
+            />
           </div>
         }
 
         <!--
           G40: the city master is unseeded, so this list is empty and no control
           is rendered. Driven by what the server sends, so the day cities exist
-          the control appears without a code change.
+          the control appears without a code change — and it is THE reason this
+          control is searchable: 902 towns in a native dropdown is the complaint
+          that started P3b, on the most public page the product has.
         -->
         @if (filters().cities.length) {
           <div class="job-filters__field">
-            <label for="filter-city">City</label>
-            <select
-              id="filter-city"
-              class="form-control"
-              [value]="applied().cityId ?? ''"
-              (change)="pickCity($any($event.target).value)"
-            >
-              <option value="">Any city</option>
-              @for (option of filters().cities; track option.id) {
-                <option [value]="option.id">{{ option.name }} ({{ option.jobCount }})</option>
-              }
-            </select>
+            <app-combobox
+              controlId="filter-city"
+              name="cityId"
+              label="City"
+              anyLabel="Any city"
+              [options]="cityOptions()"
+              [value]="applied().cityId ?? null"
+              (valueChange)="pickCity($event)"
+            />
           </div>
         }
 
         @if (filters().states.length) {
           <div class="job-filters__field">
-            <label for="filter-state">State</label>
-            <select
-              id="filter-state"
-              class="form-control"
-              [value]="applied().stateId ?? ''"
-              (change)="pickState($any($event.target).value)"
-            >
-              <option value="">Any state</option>
-              @for (option of filters().states; track option.id) {
-                <option [value]="option.id">{{ option.name }} ({{ option.jobCount }})</option>
-              }
-            </select>
+            <app-combobox
+              controlId="filter-state"
+              name="stateId"
+              label="State"
+              anyLabel="Any state"
+              [options]="stateOptions()"
+              [value]="applied().stateId ?? null"
+              (valueChange)="pickState($event)"
+            />
           </div>
         }
 
         @if (filters().classLevels.length) {
           <div class="job-filters__field">
-            <label for="filter-level">Class level</label>
-            <select
-              id="filter-level"
-              class="form-control"
-              [value]="applied().classLevelId ?? ''"
-              (change)="pickClassLevel($any($event.target).value)"
-            >
-              <option value="">Any level</option>
-              @for (option of filters().classLevels; track option.id) {
-                <option [value]="option.id">{{ option.name }} ({{ option.jobCount }})</option>
-              }
-            </select>
+            <app-combobox
+              controlId="filter-level"
+              name="classLevelId"
+              label="Class level"
+              anyLabel="Any level"
+              [options]="classLevelOptions()"
+              [value]="applied().classLevelId ?? null"
+              (valueChange)="pickClassLevel($event)"
+            />
           </div>
         }
 

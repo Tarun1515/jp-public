@@ -44,10 +44,11 @@
     // rather than a fallback.
     flex: 1 1 11rem;
 
-    label {
-      font-size: var(--jp-font-size-sm);
-      color: var(--jp-text-muted);
-    }
+    // ⚠️ THE LABEL RULE THAT USED TO LIVE HERE MOVED INTO `<app-combobox>`,
+    // and it had to: these four labels are inside that component's template
+    // now, and a scoped stylesheet cannot reach into a child component's DOM.
+    // Left here the rule would have compiled, matched nothing, and silently
+    // dropped the label styling on the whole filter bar.
   }
 
   &__clear {
