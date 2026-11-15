@@ -40,17 +40,27 @@ import { PublicComboboxComponent } from '../../ui/combobox/public-combobox.compo
  * one winning.
  *
  * ---------------------------------------------------------------------------
- * ⚠️ NO CITY CONTROL UNTIL THERE ARE CITIES (G40)
+ * ⚠️ NO CITY CONTROL UNTIL A JOB CARRIES A CITY — AND THE MASTER IS NOT THE
+ *    REASON ANY MORE
  * ---------------------------------------------------------------------------
- * `m_mdm_city` is unseeded, so `/jobs/filters` returns an empty city list and
- * this page renders no city control. A dropdown whose every option returns
- * nothing is worse than its absence. The day the master is seeded the control
- * appears with no code change, because it is driven by what the server sends.
+ * 🔴 THIS NOTE USED TO SAY `m_mdm_city` IS UNSEEDED. It is not, and has not
+ * been since 11 Nov 2026: 782 districts and 902 towns are live across all 36
+ * states (G40 is closed). The two halves of this comment had already begun to
+ * contradict each other — one sentence said "unseeded", the next said "902
+ * towns are seeded" — which is how a stale note reads shortly before it
+ * misleads somebody.
+ *
+ * What is actually true, measured 15 Nov 2026: `/jobs/filters` returns
+ * **reachable rows only**, and no live job or branch carries a `CityId` yet
+ * (all five seeded branches have `DistrictId`/`CityId` NULL, and `t_app_jobs`
+ * is empty). So the city list comes back empty and this page renders no city
+ * control. The master is **UNUSED, not MISSING** — the first real job saved
+ * with a town fills the filter with no code change here, because the control
+ * is driven by what the server sends.
  *
  * ⚠️ AND THAT IS THE DAY THE CITY FILTER BECOMES THE REASON `<app-combobox>`
- * EXISTS. 902 towns are seeded in `m_mdm_city`'s source data; the client's
- * complaint was a native dropdown of them on this page. The control is
- * searchable now, so the seeding is a data change rather than a UI project.
+ * EXISTS: the client's complaint was a native dropdown of 902 towns on this
+ * page. The control is searchable now, so it is ready for them.
  */
 @Component({
   selector: 'app-job-list',
@@ -273,7 +283,11 @@ export class JobListComponent implements OnInit {
   }
 
   protected where(job: PublicJobCard): string | null {
-    /* City first when it exists; today it never does (G40), so state carries it. */
+    /*
+      City first when the job has one. Today no job does — not because the
+      master is empty (it holds 902 towns) but because no job has been saved
+      with a town yet — so state carries the line. See the note on the class.
+    */
     return [job.cityName, job.stateName].filter(Boolean).join(', ') || null;
   }
 }
